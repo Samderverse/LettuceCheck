@@ -25,6 +25,11 @@ Product data comes from [Open Food Facts](https://world.openfoodfacts.org), a fr
 - **📸 Photo**: if the live scan struggles, take a still photo instead. The phone's normal camera focuses much better than the live feed.
 - **Zoom button (1×/2×)** on phones that support it, so you can hold the phone further back where newer iPhones can focus.
 - **Ingredient checking** is done by `rules.js`: a UK-focused list of animal-derived and gluten ingredients, each flagged with a plain-English reason. It ignores things that only *sound* bad (coconut milk, cocoa butter, "bacon flavour", buckwheat, glucose syrup from wheat).
+- **Checks**: vegan, vegetarian, gluten-free, dairy-free, egg-free, nut-free, palm oil-free, plus **My list** (your own words to avoid, set in ⚙︎ Settings).
+- **Strict mode** (⚙︎ Settings): treats "may contain" warnings as a No. Off by default: vegan/vegetarian ignore them, allergy checks show them as Check.
+- **✏️ Something not right?**: correct any verdict for a product. It's saved on the phone and used every time you scan it.
+- **★ Favourites**: star products to build a "safe to buy" list alongside Recent.
+- **🔦 Torch** in the scanner on phones that allow it (mostly Android).
 - **📝 Photo of ingredients label**: for products missing from Open Food Facts, it reads the label on the phone itself with [Tesseract](https://github.com/naptha/tesseract.js) and checks that. You can correct any misread words.
 
 ## Files

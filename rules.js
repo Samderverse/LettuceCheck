@@ -104,6 +104,32 @@
     { re: /\brusk\b|\bbreadcrumbs?\b|\bcroutons?\b/g, label: 'Bread / rusk (wheat)' }
   ];
 
+  // ---------- Nuts (UK allergen list: peanuts + tree nuts) ----------
+  const NUT_SAFE = [
+    /\bcoconuts?\b/g, /\bnutmeg\b/g, /\bbutternut\b/g, /\bdough\s*nuts?\b/g, /\bdonuts?\b/g,
+    /\b(?:water\s+)?chestnuts?\b/g, /\btiger\s*nuts?\b/g,
+    /\b(?:nut|peanut|tree\s+nut)s?[\s-]*free\b/g, /\bfree\s+from\s+(?:peanuts?|nuts?)\b/g, /\bno\s+(?:peanuts?|nuts?)\b/g,
+    /\b(?:almond|hazelnut|walnut|pecan|pistachio|nut|peanut|praline)\s+flavou?r(?:ed|ing|ings)?\b/g
+  ];
+  const NUTS = [
+    { re: /\bpeanuts?\b(?:\s+(?:butter|oil|flour|paste))?|\bground\s*nuts?\b|\barachis\s+oil\b/g, label: 'Peanut' },
+    { re: /\balmonds?\b(?:\s+(?:flour|butter|paste|milk|drink))?|\bmarzipan\b|\bfrangipane\b/g, label: 'Tree nut (almond)' },
+    { re: /\bhazelnuts?\b(?:\s+(?:paste|butter))?|\bgianduja\b|\bpraline\b/g, label: 'Tree nut (hazelnut)' },
+    { re: /\b(?:walnuts?|cashews?(?:\s+nuts?)?|pecans?(?:\s+nuts?)?|brazil\s+nuts?|pistachios?(?:\s+nuts?)?|macadamias?(?:\s+nuts?)?|pine\s*nuts?|queensland\s+nuts?)\b/g, label: 'Tree nut' },
+    { re: /\b(?:mixed\s+)?nuts?\b(?:\s+(?:butter|oil|paste|pieces))?|\bnougat\b/g, label: 'Nuts' }
+  ];
+
+  // ---------- Palm oil ----------
+  const PALM_SAFE = [/\bpalm\s+sugar\b/g, /\b(?:hearts?\s+of\s+palm|palm\s+hearts?)\b/g, /\bdate\s+palm\b/g, /\bpalm[\s-]*(?:oil[\s-]*)?free\b/g, /\bno\s+palm\s+oil\b/g];
+  const PALM = [
+    { re: /\bpalm\b(?:\s+(?:kernel\s+)?(?:oil|fat|stearin|olein)s?)?|\bpalm\s+kernel\b|\belaeis\b/g, label: 'Palm oil' }
+  ];
+  const PALM_CHECK = [
+    { re: /\bmono[\s-]*(?:and|&)?[\s-]*di[\s-]*glycerides\b|\be\s?47[1-5][a-f]?\b/g, why: 'Emulsifiers like E471 are very often made from palm oil' },
+    { re: /\b(?:ascorbyl|retinyl|vitamin\s+a)\s+palmitate\b|\bpalmitate\b/g, why: 'Palmitates are usually made from palm oil' },
+    { re: /\bvegetable\s+(?:oils?|fats?)\b(?!\s*[(\[:]\s*[a-z])/g, why: "Unnamed vegetable oil or fat could include palm" }
+  ];
+
   // ---------- Text helpers ----------
   // Keep string length identical so match positions line up with the original for highlighting
   function blank(text, re) { return text.replace(re, m => ' '.repeat(m.length)); }
@@ -147,10 +173,11 @@
 
   // ---------- Main ----------
   /**
-   * analyse({ text, offProduct })
+   * analyse({ text, offProduct, strict, custom })
    * text: ingredients list (from Open Food Facts or a photo)
    * offProduct: Open Food Facts product object (optional)
-   * returns { vegan, vegetarian, gluten, marks, source }
+   * returns { vegan, vegetarian, gluten, dairy, egg, nuts, palm, custom, text, marks }
+   * opts.strict: treat 'may contain' warnings as a no; opts.custom: words to avoid
    */
   function analyse(opts) {
     const p = opts.offProduct || {};
@@ -160,6 +187,8 @@
     const allergens = p.allergens_tags || [];
     const offTraces = p.traces_tags || [];
     const hasText = raw.replace(/[^a-z]/gi, '').length >= 3;
+    const strict = !!opts.strict;
+    const custom = (opts.custom || []).map(w => String(w).trim()).filter(Boolean);
 
     let t = normalise(raw);
     const { main, traces } = splitTraces(t);
@@ -213,7 +242,9 @@
       relevantStrong.forEach(h => marks.push({ start: h.start, end: h.end, level: 'no', kinds: [kind] }));
       relevantChecks.forEach(h => marks.push({ start: h.start, end: h.end, level: 'maybe', kinds: [kind] }));
 
-      const traceNote = isVegan && traceAnimals.length
+      const traceList = isVegan ? traceAnimals : traceAnimals.filter(a => a === 'fish' || a === 'shellfish');
+      if (strict && traceList.length) reasons.push(...traceList.map(a => ({ text: 'May contain ' + a, why: 'Cross-contamination warning (strict mode is on)' })));
+      const traceNote = strict ? '' : isVegan && traceAnimals.length
         ? `May contain ${traceAnimals.join(', ')} (cross-contamination warning only; most vegans accept this)`
         : (!isVegan && traceAnimals.some(a => a === 'fish' || a === 'shellfish') ? `May contain ${traceAnimals.filter(a => a === 'fish' || a === 'shellfish').join(', ')} (cross-contamination only)` : '');
 
@@ -245,14 +276,86 @@
         if (labelled) return { status: 'yes', note: 'Labelled gluten-free' };
         return { status: 'unknown', note: 'No ingredients list for this product yet' };
       }
+      if (glutenTrace && strict) return { status: 'no', reasons: [{ text: 'May contain gluten', why: 'Cross-contamination warning (strict mode is on)' }] };
       if (glutenTrace) return { status: 'maybe', note: 'No gluten ingredients, but may contain traces', maybes: [{ text: 'May contain gluten', why: 'Made where gluten is handled; not safe for coeliacs' }], extra: vinegarNote };
       return { status: 'yes', note: 'No gluten ingredients found', extra: vinegarNote };
+    }
+
+    // Generic "free-from" check for allergy-style toggles
+    function buildFree(kind, cfg) {
+      const labelled = cfg.labelsYes.some(l => labels.includes(l));
+      const reasons = uniqBy(cfg.hits.map(h => ({ text: tidy(h.word), why: h.why })), r => r.text);
+      if (!reasons.length) cfg.tags.filter(tg => allergens.includes(tg[0])).forEach(tg => reasons.push({ text: tg[1], why: 'listed allergen' }));
+      cfg.hits.forEach(h => marks.push({ start: h.start, end: h.end, level: 'no', kinds: [kind] }));
+      const maybes = uniqBy((cfg.checks || []).map(h => ({ text: tidy(h.word), why: h.why })), r => r.why);
+      (cfg.checks || []).forEach(h => marks.push({ start: h.start, end: h.end, level: 'maybe', kinds: [kind] }));
+      const trace = cfg.traceRe && cfg.traceRe.test(traceText);
+
+      if (labelled && !reasons.length) return { status: 'yes', note: cfg.labelNote };
+      if (reasons.length) return { status: 'no', reasons, maybes };
+      if (!hasText) {
+        if (cfg.offNo) return { status: 'no', reasons: [{ text: cfg.offNo, why: 'flagged by Open Food Facts' }] };
+        return { status: 'unknown', note: 'No ingredients list for this product yet' };
+      }
+      if (cfg.offNo && !maybes.length) return { status: 'no', reasons: [{ text: cfg.offNo, why: 'flagged by Open Food Facts' }] };
+      if (trace && strict) return { status: 'no', reasons: [{ text: 'May contain ' + cfg.traceWord, why: 'Cross-contamination warning (strict mode is on)' }] };
+      if (trace) return { status: 'maybe', note: `No ${cfg.noun || cfg.traceWord} ingredients, but may contain traces`, maybes: [{ text: 'May contain ' + cfg.traceWord, why: 'Made where ' + cfg.traceWord + (cfg.traceWord === 'nuts' ? ' are' : ' is') + ' handled; not safe for allergies' }, ...maybes] };
+      if (maybes.length) return { status: 'maybe', note: cfg.maybeNote || 'Worth checking these', maybes };
+      return { status: 'yes', note: cfg.yesNote };
+    }
+
+    let nutText = base;
+    for (const re of NUT_SAFE) nutText = blank(nutText, re);
+    let palmText = base;
+    for (const re of PALM_SAFE) palmText = blank(palmText, re);
+    const nutHits = findAll(nutText, NUTS).map(h => ({ ...h, why: h.rule.label }));
+    const palmHits = findAll(palmText, PALM).map(h => ({ ...h, why: h.rule.label }));
+    const palmChecks = findAll(palmText, PALM_CHECK).map(h => ({ ...h, why: h.rule.why }));
+    const offPalm = (p.ingredients_analysis_tags || []).includes('en:palm-oil') && !palmHits.length ? 'Palm oil' : '';
+
+    function buildCustom() {
+      if (!custom.length) return null;
+      const esc = w => w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+      const rules = custom.map(w => ({ re: new RegExp((/^\w/.test(w) ? '\\b' : '') + esc(w) + '(?:e?s)?' + (/\w$/.test(w) ? '\\b' : ''), 'g'), why: 'On your avoid list', w }));
+      const hits = findAll(main, rules);
+      const traceHit = rules.filter(r => { r.re.lastIndex = 0; return r.re.test(traces); });
+      hits.forEach(h => marks.push({ start: h.start, end: h.end, level: 'no', kinds: ['custom'] }));
+      const reasons = uniqBy(hits.map(h => ({ text: tidy(h.word), why: 'On your avoid list' })), r => r.text);
+      if (reasons.length) return { status: 'no', reasons };
+      if (!hasText) return { status: 'unknown', note: 'No ingredients list for this product yet' };
+      if (traceHit.length) {
+        const m = traceHit.map(r => ({ text: 'May contain ' + r.w, why: 'Cross-contamination warning' + (strict ? ' (strict mode is on)' : '') }));
+        return strict ? { status: 'no', reasons: m } : { status: 'maybe', note: 'Not in the ingredients, but may contain traces', maybes: m };
+      }
+      return { status: 'yes', note: 'Nothing from your avoid list' };
     }
 
     const result = {
       vegan: buildAnimal('vegan'),
       vegetarian: buildAnimal('vegetarian'),
       gluten: buildGluten(),
+      dairy: buildFree('dairy', {
+        hits: strong.filter(h => h.rule.cat === 'dairy').map(h => ({ ...h, why: 'dairy' })),
+        tags: [['en:milk', 'Milk']], labelsYes: ['en:vegan', 'en:no-milk', 'en:no-dairy', 'en:dairy-free', 'en:milk-free'],
+        traceRe: /\bmilk\b|\bdairy\b|\blactose\b/, traceWord: 'milk',
+        labelNote: 'Labelled dairy-free', yesNote: 'No dairy ingredients found'
+      }),
+      egg: buildFree('egg', {
+        hits: strong.filter(h => h.rule.cat === 'egg').map(h => ({ ...h, why: 'egg' })),
+        tags: [['en:eggs', 'Egg']], labelsYes: ['en:vegan', 'en:no-eggs', 'en:egg-free'],
+        traceRe: /\beggs?\b/, traceWord: 'egg',
+        labelNote: 'Labelled egg-free', yesNote: 'No egg ingredients found'
+      }),
+      nuts: buildFree('nuts', {
+        hits: nutHits, tags: [['en:nuts', 'Nuts'], ['en:peanuts', 'Peanuts']], labelsYes: ['en:nut-free', 'en:no-nuts', 'en:peanut-free'],
+        traceRe: /\bnuts?\b|\bpeanuts?\b|almond|hazelnut|walnut|cashew|pecan|brazil|pistachio|macadamia/, traceWord: 'nuts', noun: 'nut',
+        labelNote: 'Labelled nut-free', yesNote: 'No nut ingredients found'
+      }),
+      palm: buildFree('palm', {
+        hits: palmHits, checks: palmChecks, tags: [], labelsYes: ['en:palm-oil-free', 'en:no-palm-oil'], offNo: offPalm,
+        labelNote: 'Labelled palm oil free', yesNote: 'No palm oil found', maybeNote: 'No palm oil named, but check these'
+      }),
+      custom: buildCustom(),
       text: raw,
       tracesAt: splitTraces(t).at,
       marks

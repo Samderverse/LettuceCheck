@@ -1,7 +1,7 @@
 // Lettuce Check service worker: keeps the app on the phone so it opens instantly.
 // Product lookups always go to the network (Open Food Facts).
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'lettuce-check-v2';
+const VERSION = 'lettuce-check-v3';
 const SHELL = [
   './',
   'index.html',

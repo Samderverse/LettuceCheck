@@ -150,21 +150,76 @@
   .clear{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;padding:8px 0}
   footer{color:var(--muted);font-size:12px;line-height:1.5;margin-top:24px;text-align:center}
   footer a{color:var(--muted)}
+
+  /* v3 additions */
+  header{justify-content:space-between}
+  header .brand{display:flex;align-items:center;gap:10px}
+  .iconbtn{border:1.5px solid var(--line);background:var(--card);color:var(--ink);width:42px;height:42px;
+    border-radius:12px;font-size:20px;display:grid;place-items:center;padding:0}
+  .product .info{flex:1;min-width:0}
+  .star{border:0;background:none;font-size:28px;line-height:1;padding:4px 2px;color:var(--muted);flex:none}
+  .star.on{color:#f2b632}
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+    background:var(--ink);color:var(--bg);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+  details.fix{border:1.5px dashed var(--line);border-radius:var(--radius);padding:12px 14px;margin:2px 0 10px}
+  details.fix summary{font-weight:700;font-size:15px;cursor:pointer;list-style:none;color:var(--muted)}
+  details.fix summary::-webkit-details-marker{display:none}
+  .fixrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line)}
+  .fixrow:first-of-type{margin-top:10px}
+  .fixrow span{font-weight:600;font-size:15px}
+  .seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+  .seg button{border:0;background:var(--card);color:var(--ink);font-size:14px;font-weight:700;padding:8px 12px}
+  .seg button+button{border-left:1.5px solid var(--line)}
+  .seg button.on.yes{background:var(--yes);color:#fff} .seg button.on.no{background:var(--no);color:#fff}
+  .seg button.on.auto{background:var(--ink);color:var(--bg)}
+  .fixnote{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
+  .fixnote a{color:var(--accent)}
+
+  .tabs{display:flex;gap:6px;margin:26px 0 6px}
+  .tabs button{border:0;background:none;color:var(--muted);font-size:14px;font-weight:800;text-transform:uppercase;
+    letter-spacing:.6px;padding:6px 10px;border-radius:8px}
+  .tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 0 0 1.5px var(--line) inset}
+  .empty{color:var(--muted);font-size:14px;padding:12px 4px;line-height:1.45}
+  .history .hstar{color:#f2b632;font-size:14px}
+
+  .sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none}
+  .sheetbg.on{display:block}
+  .sheet{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg);
+    border-radius:22px 22px 0 0;padding:18px 18px max(24px,env(safe-area-inset-bottom))}
+  .sheet .inner{max-width:520px;margin:0 auto}
+  .sheet h3{margin:0 0 14px;font-size:20px;display:flex;justify-content:space-between;align-items:center}
+  .sheet h4{margin:20px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .setting{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .setting label{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:700;font-size:15px}
+  .setting .sub{color:var(--muted);font-size:13px;line-height:1.4;margin-top:4px;font-weight:400}
+  .switch{appearance:none;-webkit-appearance:none;width:50px;height:30px;border-radius:15px;background:var(--line);
+    position:relative;flex:none;transition:background .15s;margin:0;cursor:pointer}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
+  .switch:checked{background:var(--accent)} .switch:checked::after{left:23px}
+  .avoidform{display:flex;gap:8px;margin-top:10px}
+  .avoidform input{flex:1;min-width:0;font-size:16px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+  .avoidform button{border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;padding:0 14px;font-size:15px}
+  .tagsrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tagx{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1.5px solid var(--line);border-radius:999px;
+    padding:6px 6px 6px 12px;font-size:14px;font-weight:600}
+  .tagx button{border:0;background:var(--line);color:var(--ink);border-radius:50%;width:22px;height:22px;font-size:13px;line-height:1;padding:0}
+  .datarow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:15px}
+  .datarow button{border:1.5px solid var(--line);background:var(--bg);color:var(--no);border-radius:10px;padding:7px 12px;font-weight:700;font-size:14px}
   .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <img class="logo" src="icons/logo.png" alt="">
-    <div><h1>Lettuce Check</h1><div class="tag">Scan it. Let us check.</div></div>
+    <div class="brand">
+      <img class="logo" src="icons/logo.png" alt="">
+      <div><h1>Lettuce Check</h1><div class="tag">Scan it. Let us check.</div></div>
+    </div>
+    <button class="iconbtn" id="settingsBtn" aria-label="Settings">⚙︎</button>
   </header>
 
-  <div class="chips" id="chips">
-    <button class="chip" data-check="vegan" aria-pressed="true">Vegan</button>
-    <button class="chip" data-check="vegetarian" aria-pressed="false">Vegetarian</button>
-    <button class="chip" data-check="gluten" aria-pressed="false">Gluten-free</button>
-  </div>
+  <div class="chips" id="chips"></div>
 
   <button class="scanbtn" id="scanBtn">📷 Scan barcode</button>
   <button class="secondary" id="labelBtn">📝 Photo of ingredients label</button>
@@ -176,11 +231,12 @@
 
   <div id="result"></div>
 
-  <div id="historyWrap" hidden>
-    <h2>Recent</h2>
-    <ul class="history" id="history"></ul>
-    <button class="clear" id="clearHistory">Clear recent</button>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tabRecent" aria-selected="true">Recent</button>
+    <button role="tab" id="tabFavs" aria-selected="false">★ Favourites</button>
   </div>
+  <ul class="history" id="history"></ul>
+  <button class="clear" id="clearHistory" hidden>Clear recent</button>
 
   <footer>
     Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>,
@@ -194,10 +250,40 @@
   <div class="frame" id="frame"></div>
   <div class="scanhint" id="scanHint">Hold the phone a hand-span away<br>and fit the barcode in the box</div>
   <div class="scanbar">
+    <button class="ghost" id="torchBtn" hidden aria-label="Torch">🔦</button>
     <button class="ghost" id="zoomBtn" hidden>2×</button>
     <button class="ghost" id="photoBtn">📸 Photo</button>
     <button id="closeScan">Cancel</button>
   </div>
+</div>
+
+<div class="sheetbg" id="sheetBg">
+  <div class="sheet" role="dialog" aria-label="Settings"><div class="inner">
+    <h3>Settings <button class="iconbtn" id="closeSheet" aria-label="Close">✕</button></h3>
+
+    <div class="setting">
+      <label for="strictToggle">Strict about "may contain"
+        <input type="checkbox" class="switch" id="strictToggle"></label>
+      <div class="sub">Turn on to treat "may contain" and "made in a factory that handles…" warnings as a <b>No</b>. Best for allergies, coeliac disease or strict vegans. Off: vegan/vegetarian ignore them, and allergy checks show them as <b>Check</b>.</div>
+    </div>
+
+    <h4>My avoid list</h4>
+    <div class="setting">
+      <div class="sub" style="margin-top:0">Add anything else to look out for, such as mushrooms, celery or E621. A <b>My list</b> button appears with the others.</div>
+      <form class="avoidform" id="avoidForm">
+        <input id="avoidInput" placeholder="e.g. mushroom" autocomplete="off" autocapitalize="off">
+        <button type="submit">Add</button>
+      </form>
+      <div class="tagsrow" id="avoidTags"></div>
+    </div>
+
+    <h4>Saved on this phone</h4>
+    <div class="setting">
+      <div class="datarow"><span id="ovrCount">Corrections</span><button id="clearOvr">Clear</button></div>
+      <div class="datarow"><span id="favCount">Favourites</span><button id="clearFavs">Clear</button></div>
+    </div>
+    <div class="sub" style="color:var(--muted);font-size:12px;margin-top:14px;text-align:center">Lettuce Check v3 · Nothing leaves your phone except barcode lookups</div>
+  </div></div>
 </div>
 
 <input type="file" accept="image/*" capture="environment" id="barcodePhoto" class="vh" aria-hidden="true">
@@ -207,7 +293,7 @@
 <script>
 (() => {
   const $ = s => document.querySelector(s);
-  const LABELS = { vegan: 'Vegan', vegetarian: 'Vegetarian', gluten: 'Gluten-free' };
+  const LABELS = { vegan: 'Vegan', vegetarian: 'Vegetarian', gluten: 'Gluten-free', dairy: 'Dairy-free', egg: 'Egg-free', nuts: 'Nut-free', palm: 'Palm oil-free', custom: 'My list' };
   const KINDS = Object.keys(LABELS);
   const store = {
     get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
@@ -226,23 +312,51 @@
     });
   }
 
-  /* ================= Toggles ================= */
-  let checks = store.get('vc_checks', { vegan: true, vegetarian: false, gluten: false });
-  let current = null; // what's on screen, re-rendered when toggles change
-  const active = () => KINDS.filter(k => checks[k]);
+  /* ================= Settings & toggles ================= */
+  let checks = store.get('vc_checks', { vegan: true });
+  let settings = Object.assign({ strict: false, custom: [] }, store.get('vc_settings', {}));
+  let current = null;       // what's on screen; re-rendered when settings change
+  let fixOpen = false;      // keep the correction panel open across re-renders
+  const saveSettings = () => store.set('vc_settings', settings);
+  const available = k => k !== 'custom' || settings.custom.length > 0;
+  const active = () => KINDS.filter(k => checks[k] && available(k));
+  const analyse = opts => LettuceRules.analyse({ ...opts, strict: settings.strict, custom: settings.custom });
+
   function paintChips(){
-    document.querySelectorAll('.chip').forEach(c =>
-      c.setAttribute('aria-pressed', checks[c.dataset.check] ? 'true' : 'false'));
+    if (!active().length) checks.vegan = true;
+    $('#chips').innerHTML = KINDS.filter(available).map(k =>
+      `<button class="chip" data-check="${k}" aria-pressed="${checks[k] ? 'true' : 'false'}">${LABELS[k]}</button>`).join('');
   }
   $('#chips').addEventListener('click', e => {
     const c = e.target.closest('.chip'); if (!c) return;
     const k = c.dataset.check;
     checks[k] = !checks[k];
     if (!active().length) checks[k] = true;
-    store.set('vc_checks', checks); paintChips(); paintHistory();
-    if (current) current.render();
+    store.set('vc_checks', checks); refreshAll();
   });
+  function refreshAll(){ paintChips(); paintLists(); if (current) current.render(); }
   paintChips();
+
+  /* ================= Corrections ================= */
+  const getOverrides = () => store.get('vc_overrides', {});
+  function setOverride(code, kind, val){
+    const all = getOverrides();
+    all[code] = all[code] || {};
+    if (val === 'auto') delete all[code][kind]; else all[code][kind] = val;
+    if (!Object.keys(all[code]).length) delete all[code];
+    store.set('vc_overrides', all);
+  }
+  function applyOverrides(code, a){
+    const o = code && getOverrides()[code];
+    if (!o) return a;
+    for (const k of Object.keys(o)) {
+      if (!a[k]) continue;
+      a[k] = { status: o[k], note: 'Your correction', overridden: true,
+        extra: `Lettuce Check said "${STATUS[a[k].status].word}". Change it under "Something not right?"` };
+    }
+    return a;
+  }
+  const statusesOf = a => Object.fromEntries(KINDS.filter(k => a[k]).map(k => [k, a[k].status]));
 
   /* ================= Barcode helpers ================= */
   function mod10ok(c){
@@ -251,8 +365,7 @@
     return (10 - s % 10) % 10 === check;
   }
   function upcEtoA(e){
-    if (e.length === 6) e = '0' + e + '';
-    if (e.length === 7) e = '0' + e; // no number system digit
+    if (e.length === 7) e = '0' + e;
     if (e.length !== 8) return null;
     const ns = e[0], d = e.slice(1, 7), chk = e[7], last = d[5];
     let m;
@@ -262,7 +375,6 @@
     else m = d.slice(0, 5) + '0000' + last;
     return ns + m + chk;
   }
-  // Returns a clean, checksum-valid code, or null for a misread
   function cleanCode(raw, format){
     let c = String(raw || '').replace(/\D/g, '');
     if (format === 'upc_e') { const a = upcEtoA(c); if (!a || !mod10ok(a)) return null; return a; }
@@ -285,31 +397,47 @@
     let html = `<div class="verdict ${v.status}${big ? ' big' : ''}">
       <div class="vhead"><div class="icon">${s.icon}</div>
         <div><div class="vtitle">${LABELS[key]}: ${s.word}</div>
-        ${v.note ? `<div class="vsub">${esc(v.note)}</div>` : ''}</div></div>`;
+        ${v.note ? `<div class="vsub">${esc(v.note)}${v.overridden ? '<span class="badge">You</span>' : ''}</div>` : ''}</div></div>`;
     if (v.reasons?.length) html += `<div class="rlabel">Why not</div>${list(v.reasons)}`;
     if (v.maybes?.length) html += `<div class="rlabel">${v.status === 'no' ? 'Also worth checking' : 'Worth checking'}</div>${list(v.maybes)}`;
     if (v.extra) html += `<div class="extra">ℹ️ ${esc(v.extra)}</div>`;
     return html + '</div>';
   }
 
-  function verdictBlock(analysis, opts = {}){
-    const ks = active();
-    let html = ks.map(k => verdictCard(k, analysis[k], ks.length === 1)).join('');
-    if (analysis.text && analysis.text.trim()) {
-      const flagged = ks.some(k => ['no', 'maybe'].includes(analysis[k].status));
+  function verdictBlock(a, opts = {}){
+    const ks = active().filter(k => a[k]);
+    let html = ks.map(k => verdictCard(k, a[k], ks.length === 1)).join('');
+    if (a.text && a.text.trim()) {
+      const flagged = ks.some(k => ['no', 'maybe'].includes(a[k].status) && !a[k].overridden);
       html += `<details class="ingr"${flagged ? ' open' : ''}><summary>Ingredients</summary>
-        <p>${LettuceRules.highlight(analysis, ks, esc)}</p></details>`;
+        <p>${LettuceRules.highlight(a, ks.filter(k => !a[k].overridden), esc)}</p></details>`;
     }
     if (opts.source) html += `<div class="source">${esc(opts.source)}</div>`;
     return html;
   }
 
+  function fixPanel(code){
+    const o = getOverrides()[code] || {};
+    const rows = active().map(k => {
+      const v = o[k] || 'auto';
+      return `<div class="fixrow"><span>${LABELS[k]}</span><div class="seg">
+        ${['yes', 'no', 'auto'].map(x => `<button class="${x}${v === x ? ' on' : ''}" data-act="ovr" data-kind="${k}" data-val="${x}">${x === 'auto' ? 'Auto' : x === 'yes' ? 'Yes' : 'No'}</button>`).join('')}
+      </div></div>`;
+    }).join('');
+    return `<details class="fix"${fixOpen ? ' open' : ''}><summary>✏️ Something not right?</summary>
+      ${rows}
+      <div class="fixnote">Your answer is saved on this phone and used every time you scan this product. <b>Auto</b> goes back to Lettuce Check's verdict.
+      You can also <a href="https://world.openfoodfacts.org/product/${esc(code)}" target="_blank" rel="noopener">fix it on Open Food Facts</a> for everyone.</div></details>`;
+  }
+
+  const isFav = code => store.get('vc_favs', []).some(f => f.code === code);
   const productCard = (p, code) => {
     const name = p.product_name || p.generic_name || 'Unnamed product';
     return `<div class="product">
       ${p.image_front_small_url ? `<img src="${esc(p.image_front_small_url)}" alt="" loading="lazy">` : ''}
-      <div><div class="name">${esc(name)}</div>
-      <div class="meta">${esc(p.brands || '')}${p.brands ? ' · ' : ''}${esc(code)}</div></div></div>`;
+      <div class="info"><div class="name">${esc(name)}</div>
+      <div class="meta">${esc(p.brands || '')}${p.brands ? ' · ' : ''}${esc(code)}</div></div>
+      ${code ? `<button class="star${isFav(code) ? ' on' : ''}" data-act="fav" aria-label="Favourite">${isFav(code) ? '★' : '☆'}</button>` : ''}</div>`;
   };
 
   function showMessage(html){ current = null; $('#result').innerHTML = `<div class="msg">${html}</div>`; }
@@ -327,9 +455,11 @@
     return j.status === 1 ? j.product : null;
   }
 
+  let pendingProduct = null;
   async function lookup(code){
     code = String(code).replace(/\D/g, '');
     if (!code) return;
+    fixOpen = false;
     showMessage('<div class="spinner"></div>Looking up ' + esc(code) + '…');
     scrollToResult();
     try {
@@ -337,69 +467,134 @@
       if (!p && code.length === 12) { p = await fetchProduct('0' + code); if (p) code = '0' + code; }
       if (!p && code.length === 13 && code.startsWith('0')) { p = await fetchProduct(code.slice(1)); }
       if (!p) { renderNotFound(code); return; }
-      current = { render(){ renderProduct(code, p); } };
+      current = { render(){ renderProduct(code, p); }, ctx: { code, product: p } };
       const a = renderProduct(code, p);
-      addHistory(code, p.product_name || p.generic_name || 'Unnamed product', a);
+      addHistory(code, p, a);
     } catch (e) {
       showMessage('<strong>Couldn\'t reach Open Food Facts</strong><span class="sub">Check your signal and try again.</span>');
     }
   }
 
-  function renderProduct(code, p, ocrText){
-    pendingProduct = { code, product: p }; // so a label photo taken next is linked to this product
-    const a = LettuceRules.analyse(ocrText != null ? { text: ocrText, offProduct: p } : { offProduct: p });
+  function renderProduct(code, p){
+    pendingProduct = { code, product: p };
+    const a = applyOverrides(code, analyse({ offProduct: p }));
     const noText = !a.text.trim();
     let html = productCard(p, code);
     if (noText) {
       html += `<div class="msg"><strong>No ingredients listed for this one yet</strong>
         <span class="sub">Take a photo of the ingredients on the pack and I'll check them.</span>
         <button class="scanbtn" style="margin-top:12px;font-size:17px;padding:16px" data-act="label">📝 Photo of ingredients</button></div>`;
-      // Labels alone can still answer (e.g. "vegan" logo)
-      const ks = active().filter(k => a[k].status !== 'unknown');
+      const ks = active().filter(k => a[k] && a[k].status !== 'unknown');
       if (ks.length) html += ks.map(k => verdictCard(k, a[k], false)).join('');
     } else {
-      html += verdictBlock(a, { source: ocrText != null ? 'Checked from your photo of the label' : 'Checked against the ingredients list on Open Food Facts' });
+      html += verdictBlock(a, { source: 'Checked against the ingredients list on Open Food Facts' });
     }
+    html += fixPanel(code);
     html += `<button class="secondary" data-act="scan">📷 Scan another</button>`;
     $('#result').innerHTML = html;
+    updateSaved(code, a);
     return a;
   }
 
   function renderNotFound(code){
     current = null;
+    pendingProduct = { code, product: null };
     $('#result').innerHTML = `<div class="msg"><strong>Not in the food database yet</strong>
       <span class="sub">Barcode ${esc(code)}. Take a photo of the ingredients and I'll check them instead.</span>
       <button class="scanbtn" style="margin-top:12px;font-size:17px;padding:16px" data-act="label">📝 Photo of ingredients</button>
       <span class="sub" style="margin-top:12px">Wrong number? <a href="#" data-act="scan">Scan again</a> ·
       <a href="https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${esc(code)}" target="_blank" rel="noopener">Add it to Open Food Facts</a></span></div>`;
-    pendingProduct = { code, product: null };
   }
 
   $('#result').addEventListener('click', e => {
     const b = e.target.closest('[data-act]'); if (!b) return;
     e.preventDefault();
-    if (b.dataset.act === 'scan') startScan();
-    if (b.dataset.act === 'label') pickLabelPhoto(current?.ctx || pendingProduct);
+    const act = b.dataset.act;
+    if (act === 'scan') startScan();
+    if (act === 'label') pickLabelPhoto(current?.ctx || pendingProduct);
+    if (act === 'fav' && current?.ctx?.code) { toggleFav(current.ctx); current.render(); paintLists(); }
+    if (act === 'ovr' && current?.ctx?.code) {
+      fixOpen = true;
+      setOverride(current.ctx.code, b.dataset.kind, b.dataset.val);
+      current.render(); paintLists();
+    }
   });
+  $('#result').addEventListener('toggle', e => { if (e.target.matches('details.fix')) fixOpen = e.target.open; }, true);
 
-  /* ================= History ================= */
-  function addHistory(code, name, a){
+  /* ================= Recent & favourites ================= */
+  let tab = 'recent';
+  const entryFrom = (code, p, a) => ({
+    code, name: p?.product_name || p?.generic_name || 'Product ' + code, brand: p?.brands || '', s: statusesOf(a)
+  });
+  function addHistory(code, p, a){
     let h = store.get('vc_history', []).filter(x => x.code !== code);
-    h.unshift({ code, name, s: { vegan: a.vegan.status, vegetarian: a.vegetarian.status, gluten: a.gluten.status } });
-    store.set('vc_history', h.slice(0, 20)); paintHistory();
+    h.unshift(entryFrom(code, p, a));
+    store.set('vc_history', h.slice(0, 30)); paintLists();
   }
-  function paintHistory(){
-    const h = store.get('vc_history', []);
-    $('#historyWrap').hidden = !h.length;
+  // Keep the coloured dots in Recent/Favourites in step with corrections and new checks
+  function updateSaved(code, a){
+    for (const key of ['vc_history', 'vc_favs']) {
+      const arr = store.get(key, []); const i = arr.findIndex(x => x.code === code);
+      if (i >= 0) { arr[i].s = { ...arr[i].s, ...statusesOf(a) }; store.set(key, arr); }
+    }
+  }
+  function toggleFav(ctx){
+    let f = store.get('vc_favs', []);
+    if (f.some(x => x.code === ctx.code)) f = f.filter(x => x.code !== ctx.code);
+    else {
+      const a = applyOverrides(ctx.code, analyse({ offProduct: ctx.product || {}, text: ctx.text }));
+      f.unshift(entryFrom(ctx.code, ctx.product, a));
+    }
+    store.set('vc_favs', f);
+  }
+  function paintLists(){
+    const items = store.get(tab === 'recent' ? 'vc_history' : 'vc_favs', []);
+    const favs = new Set(store.get('vc_favs', []).map(f => f.code));
+    $('#tabRecent').setAttribute('aria-selected', tab === 'recent');
+    $('#tabFavs').setAttribute('aria-selected', tab === 'favs');
     const ks = active();
     const worst = s => ['no', 'maybe', 'unknown', 'yes'].find(x => ks.some(k => s[k] === x)) || 'unknown';
-    $('#history').innerHTML = h.map(x => `<li data-code="${esc(x.code)}">
-      <span class="dot ${worst(x.s)}"></span>
-      <span class="hname">${esc(x.name)}</span><span class="hcode">${esc(x.code)}</span></li>`).join('');
+    $('#history').innerHTML = items.length ? items.map(x => `<li data-code="${esc(x.code)}">
+      <span class="dot ${worst(x.s || {})}"></span>
+      <span class="hname">${esc(x.name)}${tab === 'recent' && favs.has(x.code) ? ' <span class="hstar">★</span>' : ''}</span>
+      <span class="hcode">${esc(x.brand || x.code)}</span></li>`).join('')
+      : `<li class="empty" style="cursor:default;border:0">${tab === 'recent' ? 'Products you scan will show up here.' : 'Tap ☆ on a product to keep it here. Handy as a "safe to buy" list.'}</li>`;
+    $('#clearHistory').hidden = !(tab === 'recent' && items.length);
   }
-  $('#history').addEventListener('click', e => { const li = e.target.closest('li'); if (li) lookup(li.dataset.code); });
-  $('#clearHistory').onclick = () => { store.set('vc_history', []); paintHistory(); };
-  paintHistory();
+  $('#tabRecent').onclick = () => { tab = 'recent'; paintLists(); };
+  $('#tabFavs').onclick = () => { tab = 'favs'; paintLists(); };
+  $('#history').addEventListener('click', e => { const li = e.target.closest('li[data-code]'); if (li) lookup(li.dataset.code); });
+  $('#clearHistory').onclick = () => { if (confirm('Clear your recent scans?')) { store.set('vc_history', []); paintLists(); } };
+  paintLists();
+
+  /* ================= Settings sheet ================= */
+  function paintSettings(){
+    $('#strictToggle').checked = settings.strict;
+    $('#avoidTags').innerHTML = settings.custom.map((w, i) =>
+      `<span class="tagx">${esc(w)}<button data-i="${i}" aria-label="Remove ${esc(w)}">✕</button></span>`).join('');
+    const n = Object.keys(getOverrides()).length, f = store.get('vc_favs', []).length;
+    $('#ovrCount').textContent = `Corrections: ${n} product${n === 1 ? '' : 's'}`;
+    $('#favCount').textContent = `Favourites: ${f}`;
+  }
+  $('#settingsBtn').onclick = () => { paintSettings(); $('#sheetBg').classList.add('on'); };
+  const closeSheet = () => { $('#sheetBg').classList.remove('on'); refreshAll(); };
+  $('#closeSheet').onclick = closeSheet;
+  $('#sheetBg').addEventListener('click', e => { if (e.target.id === 'sheetBg') closeSheet(); });
+  $('#strictToggle').onchange = e => { settings.strict = e.target.checked; saveSettings(); };
+  $('#avoidForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const w = $('#avoidInput').value.trim().replace(/\s+/g, ' ');
+    if (w && !settings.custom.some(x => x.toLowerCase() === w.toLowerCase())) {
+      settings.custom.push(w); checks.custom = true; store.set('vc_checks', checks); saveSettings();
+    }
+    $('#avoidInput').value = ''; paintSettings();
+  });
+  $('#avoidTags').addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if (!b) return;
+    settings.custom.splice(+b.dataset.i, 1); saveSettings(); paintSettings();
+  });
+  $('#clearOvr').onclick = () => { if (confirm('Clear all your corrections?')) { store.set('vc_overrides', {}); paintSettings(); } };
+  $('#clearFavs').onclick = () => { if (confirm('Clear all favourites?')) { store.set('vc_favs', []); paintSettings(); } };
 
   /* ================= Barcode detector ================= */
   const FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e'];
@@ -407,7 +602,6 @@
   function getDetector(){
     if (detectorP) return detectorP;
     detectorP = (async () => {
-      // Android Chrome has a good built-in reader; everyone else (incl. iPhone) uses zxing-cpp
       if ('BarcodeDetector' in window) {
         try { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('ean_13')) return new BarcodeDetector({ formats: FORMATS }); } catch {}
       }
@@ -422,7 +616,6 @@
     detectorP.catch(() => { detectorP = null; });
     return detectorP;
   }
-  // Warm it up so the first scan is quick
   window.addEventListener('load', () => setTimeout(() => getDetector().catch(() => {}), 800));
 
   /* ================= Live scanner ================= */
@@ -430,7 +623,7 @@
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   let stream = null, running = false, seen = new Map(), tipTimer = null, frameNo = 0;
-  let track = null, zoomLevels = null, zoomIdx = 0;
+  let track = null, zoomLevels = null, zoomIdx = 0, torchOn = false;
 
   function cropToCanvas(full){
     const vw = video.videoWidth, vh = video.videoHeight;
@@ -453,7 +646,6 @@
     return true;
   }
 
-  // A code is accepted once it's been read the same way twice (three times for short 8-digit codes)
   function consider(codes){
     for (const c of codes) {
       const code = cleanCode(c.rawValue, c.format);
@@ -496,12 +688,18 @@
     store.set('vc_zoom', zoomIdx);
   }
   $('#zoomBtn').onclick = () => { zoomIdx = (zoomIdx + 1) % zoomLevels.length; applyZoom(); };
+  $('#torchBtn').onclick = async () => {
+    if (!track) return;
+    torchOn = !torchOn;
+    try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch { torchOn = false; }
+    $('#torchBtn').style.background = torchOn ? 'rgba(255,220,90,.9)' : '';
+  };
 
   async function startScan(){
-    seen = new Map(); frameNo = 0;
+    seen = new Map(); frameNo = 0; torchOn = false;
     frame.classList.remove('hit');
     $('#scanHint').innerHTML = 'Hold the phone a hand-span away<br>and fit the barcode in the box';
-    $('#zoomBtn').hidden = true;
+    $('#zoomBtn').hidden = true; $('#torchBtn').hidden = true; $('#torchBtn').style.background = '';
     $('#scanner').classList.add('on');
     try {
       const detP = getDetector();
@@ -516,7 +714,7 @@
       if (caps.focusMode && caps.focusMode.includes('continuous')) {
         track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
       }
-      // Zooming in lets you hold the phone further away, where newer iPhones can focus
+      if (caps.torch) $('#torchBtn').hidden = false;
       if (caps.zoom && caps.zoom.max >= 1.5) {
         const max = Math.min(caps.zoom.max, 3);
         zoomLevels = [1, Math.min(2, max)];
@@ -555,7 +753,6 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopScan(); });
 
   /* ================= Barcode from a still photo ================= */
-  // Phone photos focus far better than the live video feed, so this rescues tricky barcodes
   $('#photoBtn').onclick = () => { stopScan(); $('#barcodePhoto').value = ''; $('#barcodePhoto').click(); };
   $('#barcodePhoto').addEventListener('change', async e => {
     const file = e.target.files[0]; if (!file) return;
@@ -587,9 +784,9 @@
   });
 
   /* ================= Ingredients label (OCR) ================= */
-  let pendingProduct = null, ocrWorker = null, ocrProgress = null;
-  function pickLabelPhoto(ctx){
-    pendingProduct = ctx || null;
+  let ocrWorker = null, ocrProgress = null, labelCtx = null;
+  function pickLabelPhoto(c){
+    labelCtx = c || null;
     $('#labelPhoto').value = ''; $('#labelPhoto').click();
   }
   $('#labelBtn').onclick = () => pickLabelPhoto(null);
@@ -607,7 +804,6 @@
     return ocrWorker;
   }
 
-  // Shrink, greyscale and stretch contrast: helps a lot with shiny packaging
   async function prepImage(file){
     const bmp = await createImageBitmap(file);
     const k = Math.min(1, 2200 / Math.max(bmp.width, bmp.height));
@@ -627,7 +823,6 @@
     return c;
   }
 
-  // Keep just the ingredients paragraph from everything the camera saw
   function extractIngredients(text){
     let t = text.replace(/-\n(?=[a-z])/g, '').replace(/\s*\n\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
     const start = t.search(/\bingredients?\b\s*[:;.\-]?/i);
@@ -639,8 +834,8 @@
 
   $('#labelPhoto').addEventListener('change', async e => {
     const file = e.target.files[0]; if (!file) return;
-    const ctxInfo = pendingProduct;
-    current = null;
+    const ctxInfo = labelCtx;
+    current = null; fixOpen = false;
     $('#result').innerHTML = `<div class="msg"><strong>Reading the label…</strong>
       <span class="sub" id="ocrStatus">Getting ready (first time takes a few seconds)</span>
       <div class="bar"><i id="ocrBar"></i></div></div>`;
@@ -654,25 +849,28 @@
     try {
       const [w, img] = await Promise.all([getOcr(), prepImage(file)]);
       const { data } = await w.recognize(img);
-      const text = extractIngredients(data.text || '');
-      renderOcr(text, ctxInfo);
+      renderOcr(extractIngredients(data.text || ''), ctxInfo);
     } catch (err) {
       showMessage('<strong>Couldn\'t read that photo</strong><span class="sub">' + esc(err.message || err) + '</span>');
     } finally { ocrProgress = null; }
   });
 
   function renderOcr(text, ctxInfo){
-    const p = ctxInfo?.product || null;
+    const p = ctxInfo?.product || null, code = ctxInfo?.code || null;
+    const c = { code, product: p, text };
     const draw = () => {
       const t = $('#ocrText') ? $('#ocrText').value : text;
-      const a = LettuceRules.analyse({ text: t, offProduct: p || undefined });
-      $('#ocrResult').innerHTML = t.replace(/[^a-z]/gi, '').length < 3
+      c.text = t;
+      const a = applyOverrides(code, analyse({ text: t, offProduct: p || undefined }));
+      $('#ocrResult').innerHTML = (t.replace(/[^a-z]/gi, '').length < 3
         ? `<div class="msg"><strong>Couldn't make out any ingredients</strong><span class="sub">Try again closer, flat-on and without glare, or type them in the box above.</span></div>`
-        : verdictBlock(a, { source: 'Checked from your photo of the label. Fix any misread words above and it updates.' });
+        : verdictBlock(a, { source: 'Checked from your photo of the label. Fix any misread words above and it updates.' }))
+        + (code ? fixPanel(code) : '');
+      if (code) updateSaved(code, a);
       return a;
     };
     $('#result').innerHTML = `
-      ${p ? productCard(p, ctxInfo.code) : ''}
+      ${p || code ? productCard(p || { product_name: 'Product ' + code }, code) : ''}
       <div class="ocrbox"><label for="ocrText">Ingredients from your photo</label>
         <div class="sub">Photos aren't perfect. Correct anything that looks wrong.</div>
         <textarea id="ocrText" spellcheck="false"></textarea></div>
@@ -680,9 +878,16 @@
       <button class="secondary" data-act="label">📝 Take another photo</button>
       <button class="secondary" data-act="scan">📷 Scan a barcode</button>`;
     $('#ocrText').value = text;
-    current = { render: draw, ctx: ctxInfo };
+    current = {
+      ctx: c,
+      render(){
+        draw();
+        const star = $('#result .star');
+        if (star && code) { star.classList.toggle('on', isFav(code)); star.textContent = isFav(code) ? '★' : '☆'; }
+      }
+    };
     const a = draw();
-    if (ctxInfo?.code) addHistory(ctxInfo.code, p?.product_name || 'Product ' + ctxInfo.code, a);
+    if (code) addHistory(code, p || { product_name: 'Product ' + code }, a);
     let tmr; $('#ocrText').addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(draw, 350); });
   }
 
