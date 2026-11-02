@@ -21,6 +21,7 @@
     --yes:#1f9d55; --yes-bg:#e6f6ec; --no:#d23b3b; --no-bg:#fdeaea;
     --maybe:#c98a07; --maybe-bg:#fdf4dc; --unk:#7a817a; --unk-bg:#eef0ec;
     --accent:#1f9d55; --radius:18px;
+    --mark-no:rgba(210,59,59,.18); --mark-maybe:rgba(201,138,7,.22);
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -28,6 +29,7 @@
       --yes:#3ccf7a; --yes-bg:#143322; --no:#ff6b6b; --no-bg:#3a1818;
       --maybe:#f2b632; --maybe-bg:#3a2e10; --unk:#a5ada3; --unk-bg:#262b26;
       --accent:#3ccf7a;
+      --mark-no:rgba(255,107,107,.28); --mark-maybe:rgba(242,182,50,.28);
     }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -35,7 +37,7 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
   body{padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
   .wrap{max-width:520px;margin:0 auto}
-  button,.chip{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+  button,.chip{-webkit-user-select:none;user-select:none;touch-action:manipulation;font-family:inherit;cursor:pointer}
   header{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
   header .logo{width:40px;height:40px;border-radius:11px;display:block}
   header h1{font-size:22px;margin:0;letter-spacing:-.3px;line-height:1.1}
@@ -43,42 +45,48 @@
 
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);
-    padding:9px 14px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer}
+    padding:9px 14px;border-radius:999px;font-size:15px;font-weight:600}
   .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
   .scanbtn{width:100%;border:0;border-radius:var(--radius);background:var(--accent);color:#fff;
-    font-size:20px;font-weight:700;padding:22px;cursor:pointer;display:flex;gap:10px;
-    align-items:center;justify-content:center}
+    font-size:20px;font-weight:700;padding:22px;display:flex;gap:10px;align-items:center;justify-content:center}
   .scanbtn:active{transform:scale(.98)}
+  .secondary{width:100%;margin-top:10px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--ink);border-radius:14px;padding:14px;font-size:16px;font-weight:700}
+  .secondary:active{transform:scale(.98)}
 
   .manual{display:flex;gap:8px;margin-top:10px}
   .manual input{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:12px;
     border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
-  .manual button{border:0;border-radius:12px;padding:0 16px;font-weight:700;font-size:15px;
-    background:var(--card);color:var(--ink);border:1.5px solid var(--line);cursor:pointer}
+  .manual button{border-radius:12px;padding:0 16px;font-weight:700;font-size:15px;
+    background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
 
   /* Scanner */
   #scanner{position:fixed;inset:0;background:#000;z-index:10;display:none}
   #scanner.on{display:block}
   #video{width:100%;height:100%;object-fit:cover}
-  .frame{position:absolute;left:50%;top:45%;width:78%;max-width:380px;aspect-ratio:1.8;
-    transform:translate(-50%,-50%);border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
-  .frame::before,.frame::after{content:"";position:absolute;inset:0;border-radius:16px;
-    border:3px solid rgba(255,255,255,.9)}
-  .frame::after{border:0;height:2px;top:50%;background:#ff4d4d;inset:auto 8% auto 8%;
+  .frame{position:absolute;left:50%;top:42%;width:86%;max-width:420px;aspect-ratio:1.6;
+    transform:translate(-50%,-50%);border-radius:18px;box-shadow:0 0 0 9999px rgba(0,0,0,.45);
+    transition:box-shadow .15s}
+  .frame::before{content:"";position:absolute;inset:0;border-radius:18px;border:3px solid rgba(255,255,255,.9);transition:border-color .15s}
+  .frame::after{content:"";position:absolute;height:2px;left:8%;right:8%;top:50%;background:#ff4d4d;
     animation:sweep 1.6s ease-in-out infinite}
-  @keyframes sweep{0%,100%{top:20%}50%{top:80%}}
-  .scanhint{position:absolute;left:0;right:0;top:calc(45% + 130px);text-align:center;
-    color:#fff;font-size:15px;opacity:.9;padding:0 20px}
-  .close{position:absolute;left:50%;transform:translateX(-50%);
-    bottom:max(28px,env(safe-area-inset-bottom));border:0;border-radius:999px;
-    background:rgba(255,255,255,.95);color:#111;font-weight:700;font-size:16px;padding:14px 28px}
+  .frame.hit::before{border-color:#3ccf7a;border-width:5px}
+  .frame.hit::after{display:none}
+  @keyframes sweep{0%,100%{top:18%}50%{top:82%}}
+  .scanhint{position:absolute;left:0;right:0;top:calc(42% + min(43vw,135px) + 14px);text-align:center;
+    color:#fff;font-size:15px;line-height:1.4;padding:0 24px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .scanbar{position:absolute;left:0;right:0;bottom:max(28px,env(safe-area-inset-bottom));
+    display:flex;justify-content:center;gap:10px;padding:0 16px}
+  .scanbar button{border:0;border-radius:999px;background:rgba(255,255,255,.95);color:#111;
+    font-weight:700;font-size:16px;padding:14px 20px}
+  .scanbar .ghost{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
   /* Results */
   #result{margin-top:18px}
   .product{display:flex;gap:12px;align-items:center;background:var(--card);
     border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:12px}
-  .product img{width:56px;height:56px;object-fit:contain;border-radius:10px;background:#fff}
+  .product img{width:56px;height:56px;object-fit:contain;border-radius:10px;background:#fff;flex:none}
   .product .name{font-weight:700;font-size:16px;line-height:1.25}
   .product .meta{color:var(--muted);font-size:13px;margin-top:2px}
 
@@ -96,20 +104,40 @@
   .vsub{font-size:14px;color:var(--muted);margin-top:1px}
   .big .icon{width:64px;height:64px;font-size:34px}
   .big .vtitle{font-size:30px}
-  .reasons{margin:12px 0 0;padding-left:20px;font-size:15px;line-height:1.5}
-  .reasons li::marker{color:var(--muted)}
+  .reasons{margin:8px 0 0;padding:0;list-style:none;font-size:15px;line-height:1.4}
+  .reasons li{padding:6px 0;border-top:1px solid rgba(127,127,127,.18)}
+  .reasons li:first-child{border-top:0}
+  .reasons .why{display:block;color:var(--muted);font-size:13px;margin-top:1px}
   .rlabel{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
     color:var(--muted);margin-top:12px}
+  .extra{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.4}
+
+  details.ingr{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 16px;margin:2px 0 10px}
+  details.ingr summary{font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+  details.ingr summary::-webkit-details-marker{display:none}
+  details.ingr summary::after{content:" ▾";color:var(--muted)}
+  details.ingr[open] summary::after{content:" ▴"}
+  details.ingr p{font-size:14px;line-height:1.55;margin:10px 0 2px;color:var(--ink)}
+  mark{border-radius:4px;padding:0 2px;color:inherit;font-weight:700}
+  mark.no{background:var(--mark-no)} mark.maybe{background:var(--mark-maybe)}
+  .source{font-size:12px;color:var(--muted);margin:-2px 2px 10px}
 
   .msg{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:18px;text-align:center;font-size:16px}
+    padding:18px;text-align:center;font-size:16px;line-height:1.45;margin-bottom:10px}
+  .msg .sub{color:var(--muted);font-size:14px;display:block;margin-top:4px}
   .msg a{color:var(--accent)}
   .spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--accent);
     border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
   @keyframes spin{to{transform:rotate(360deg)}}
+  .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0 2px}
+  .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
 
-  .again{width:100%;margin-top:6px;border:1.5px solid var(--line);background:var(--card);
-    color:var(--ink);border-radius:14px;padding:14px;font-size:16px;font-weight:700}
+  .ocrbox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
+  .ocrbox label{font-weight:700;font-size:15px;display:block}
+  .ocrbox .sub{color:var(--muted);font-size:13px;margin:2px 0 8px}
+  .ocrbox textarea{width:100%;min-height:120px;font:inherit;font-size:15px;line-height:1.45;
+    border:1.5px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);resize:vertical}
 
   h2{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:26px 0 8px}
   .history{list-style:none;margin:0;padding:0}
@@ -122,6 +150,7 @@
   .clear{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;padding:8px 0}
   footer{color:var(--muted);font-size:12px;line-height:1.5;margin-top:24px;text-align:center}
   footer a{color:var(--muted)}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
@@ -138,6 +167,7 @@
   </div>
 
   <button class="scanbtn" id="scanBtn">📷 Scan barcode</button>
+  <button class="secondary" id="labelBtn">📝 Photo of ingredients label</button>
 
   <form class="manual" id="manualForm">
     <input id="manualInput" inputmode="numeric" pattern="[0-9]*" placeholder="Or type the barcode number" autocomplete="off">
@@ -159,25 +189,47 @@
   </footer>
 </div>
 
-<div id="scanner">
+<div id="scanner" role="dialog" aria-label="Barcode scanner">
   <video id="video" playsinline muted autoplay></video>
-  <div class="frame"></div>
-  <div class="scanhint" id="scanHint">Line the barcode up inside the box</div>
-  <button class="close" id="closeScan">Cancel</button>
+  <div class="frame" id="frame"></div>
+  <div class="scanhint" id="scanHint">Hold the phone a hand-span away<br>and fit the barcode in the box</div>
+  <div class="scanbar">
+    <button class="ghost" id="zoomBtn" hidden>2×</button>
+    <button class="ghost" id="photoBtn">📸 Photo</button>
+    <button id="closeScan">Cancel</button>
+  </div>
 </div>
 
+<input type="file" accept="image/*" capture="environment" id="barcodePhoto" class="vh" aria-hidden="true">
+<input type="file" accept="image/*" capture="environment" id="labelPhoto" class="vh" aria-hidden="true">
+
+<script src="rules.js"></script>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
   const LABELS = { vegan: 'Vegan', vegetarian: 'Vegetarian', gluten: 'Gluten-free' };
+  const KINDS = Object.keys(LABELS);
   const store = {
     get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
     set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
   };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const abs = p => new URL(p, location.href).href;
+  function loadScript(src){
+    return new Promise((res, rej) => {
+      if (document.querySelector(`script[data-src="${src}"]`)) return res();
+      const s = document.createElement('script');
+      s.src = src; s.dataset.src = src;
+      s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src));
+      document.head.appendChild(s);
+    });
+  }
 
-  /* ---------- Toggles ---------- */
+  /* ================= Toggles ================= */
   let checks = store.get('vc_checks', { vegan: true, vegetarian: false, gluten: false });
-  let lastProduct = null;
+  let current = null; // what's on screen, re-rendered when toggles change
+  const active = () => KINDS.filter(k => checks[k]);
   function paintChips(){
     document.querySelectorAll('.chip').forEach(c =>
       c.setAttribute('aria-pressed', checks[c.dataset.check] ? 'true' : 'false'));
@@ -186,136 +238,88 @@
     const c = e.target.closest('.chip'); if (!c) return;
     const k = c.dataset.check;
     checks[k] = !checks[k];
-    if (!Object.values(checks).some(Boolean)) checks[k] = true; // keep at least one on
-    store.set('vc_checks', checks); paintChips();
-    if (lastProduct) renderProduct(lastProduct.code, lastProduct.product);
+    if (!active().length) checks[k] = true;
+    store.set('vc_checks', checks); paintChips(); paintHistory();
+    if (current) current.render();
   });
   paintChips();
 
-  /* ---------- Helpers ---------- */
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-  const tagName = t => t.replace(/^[a-z]{2}:/, '').replace(/-/g, ' ');
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  const uniq = arr => [...new Map(arr.map(x => [x.toLowerCase(), x])).values()];
-
-  function validBarcode(c){
-    if (!/^\d{8}$|^\d{12,14}$/.test(c)) return false;
-    if (c.length === 8) return true; // EAN-8 / UPC-E use different maths, let them through
+  /* ================= Barcode helpers ================= */
+  function mod10ok(c){
     const d = c.split('').map(Number); const check = d.pop();
     let s = 0; d.reverse().forEach((n, i) => s += n * (i % 2 === 0 ? 3 : 1));
     return (10 - s % 10) % 10 === check;
   }
-
-  function flatIngredients(list, out = []){
-    for (const i of list || []) { out.push(i); if (i.ingredients) flatIngredients(i.ingredients, out); }
-    return out;
+  function upcEtoA(e){
+    if (e.length === 6) e = '0' + e + '';
+    if (e.length === 7) e = '0' + e; // no number system digit
+    if (e.length !== 8) return null;
+    const ns = e[0], d = e.slice(1, 7), chk = e[7], last = d[5];
+    let m;
+    if ('012'.includes(last)) m = d.slice(0, 2) + last + '0000' + d.slice(2, 5);
+    else if (last === '3') m = d.slice(0, 3) + '00000' + d.slice(3, 5);
+    else if (last === '4') m = d.slice(0, 4) + '00000' + d[4];
+    else m = d.slice(0, 5) + '0000' + last;
+    return ns + m + chk;
   }
-  const ingName = i => cap((i.text || tagName(i.id || '')).trim());
-
-  /* ---------- Verdict logic ---------- */
-  function judge(p){
-    const tags = p.ingredients_analysis_tags || [];
-    const labels = p.labels_tags || [];
-    const allergens = p.allergens_tags || [];
-    const traces = p.traces_tags || [];
-    const ings = flatIngredients(p.ingredients);
-    const hasIngredients = ings.length > 0 || !!p.ingredients_text;
-    const out = {};
-
-    // Vegan
-    {
-      const animalAllergens = { 'en:milk':'Milk', 'en:eggs':'Eggs', 'en:fish':'Fish',
-        'en:crustaceans':'Crustaceans', 'en:molluscs':'Molluscs' };
-      const no = uniq([
-        ...ings.filter(i => i.vegan === 'no').map(ingName),
-        ...allergens.filter(a => animalAllergens[a]).map(a => `${animalAllergens[a]} (allergen)`)
-      ]);
-      const maybe = uniq(ings.filter(i => i.vegan === 'maybe').map(ingName));
-      if (labels.includes('en:vegan')) out.vegan = { status:'yes', note:'Labelled vegan' };
-      else if (no.length) out.vegan = { status:'no', reasons:no, maybes:maybe };
-      else if (tags.includes('en:non-vegan')) out.vegan = { status:'no', reasons:['Flagged as non-vegan by Open Food Facts'], maybes:maybe };
-      else if (tags.includes('en:vegan')) out.vegan = { status:'yes', note:'No animal ingredients found' };
-      else if (maybe.length || tags.includes('en:maybe-vegan')) out.vegan = { status:'maybe', maybes:maybe, note:'Some ingredients can come from animals' };
-      else out.vegan = { status:'unknown', note: hasIngredients ? 'Ingredients not fully analysed yet' : 'No ingredients listed for this product' };
-      if (traces.some(t => animalAllergens[t]) && out.vegan.status === 'yes')
-        out.vegan.note += ' · may contain traces of ' + traces.filter(t => animalAllergens[t]).map(t => animalAllergens[t].toLowerCase()).join(', ');
-    }
-
-    // Vegetarian
-    {
-      const fishy = { 'en:fish':'Fish', 'en:crustaceans':'Crustaceans', 'en:molluscs':'Molluscs' };
-      const no = uniq([
-        ...ings.filter(i => i.vegetarian === 'no').map(ingName),
-        ...allergens.filter(a => fishy[a]).map(a => `${fishy[a]} (allergen)`)
-      ]);
-      const maybe = uniq(ings.filter(i => i.vegetarian === 'maybe').map(ingName));
-      if (labels.includes('en:vegetarian') || labels.includes('en:vegan')) out.vegetarian = { status:'yes', note:'Labelled vegetarian' };
-      else if (no.length) out.vegetarian = { status:'no', reasons:no, maybes:maybe };
-      else if (tags.includes('en:non-vegetarian')) out.vegetarian = { status:'no', reasons:['Flagged as non-vegetarian by Open Food Facts'], maybes:maybe };
-      else if (tags.includes('en:vegetarian')) out.vegetarian = { status:'yes', note:'No meat or fish ingredients found' };
-      else if (maybe.length || tags.includes('en:maybe-vegetarian')) out.vegetarian = { status:'maybe', maybes:maybe, note:'Some ingredients may not be vegetarian (e.g. rennet, gelatine)' };
-      else out.vegetarian = { status:'unknown', note: hasIngredients ? 'Ingredients not fully analysed yet' : 'No ingredients listed for this product' };
-    }
-
-    // Gluten-free
-    {
-      const glutenWords = /wheat|barley|\brye\b|\boats?\b|spelt|gluten|malt|semolina|couscous|bulgur|kamut|triticale|durum/i;
-      if (labels.includes('en:gluten-free') || labels.includes('en:no-gluten'))
-        out.gluten = { status:'yes', note:'Labelled gluten-free' };
-      else if (allergens.includes('en:gluten')) {
-        const r = uniq(ings.filter(i => glutenWords.test(i.text || i.id || '')).map(ingName));
-        out.gluten = { status:'no', reasons: r.length ? r : ['Contains gluten (listed allergen)'] };
-      }
-      else if (traces.includes('en:gluten'))
-        out.gluten = { status:'maybe', maybes:['May contain gluten (traces / shared factory)'] };
-      else if (hasIngredients)
-        out.gluten = { status:'yes', note:'No gluten in the listed ingredients or allergens' };
-      else out.gluten = { status:'unknown', note:'No ingredients listed for this product' };
-    }
-    return out;
+  // Returns a clean, checksum-valid code, or null for a misread
+  function cleanCode(raw, format){
+    let c = String(raw || '').replace(/\D/g, '');
+    if (format === 'upc_e') { const a = upcEtoA(c); if (!a || !mod10ok(a)) return null; return a; }
+    if (![8, 12, 13, 14].includes(c.length)) return null;
+    return mod10ok(c) ? c : null;
   }
 
-  /* ---------- Rendering ---------- */
+  /* ================= Rendering ================= */
   const STATUS = {
     yes:     { icon:'✓', word:'Yes' },
     no:      { icon:'✕', word:'No' },
-    maybe:   { icon:'?', word:'Maybe' },
+    maybe:   { icon:'?', word:'Check' },
     unknown: { icon:'–', word:'Not sure' }
   };
+  const list = items => `<ul class="reasons">${items.map(r =>
+    `<li><strong>${esc(r.text)}</strong>${r.why ? `<span class="why">${esc(r.why)}</span>` : ''}</li>`).join('')}</ul>`;
 
   function verdictCard(key, v, big){
     const s = STATUS[v.status];
-    let html = `<div class="verdict ${v.status} ${big ? 'big' : ''}">
+    let html = `<div class="verdict ${v.status}${big ? ' big' : ''}">
       <div class="vhead"><div class="icon">${s.icon}</div>
         <div><div class="vtitle">${LABELS[key]}: ${s.word}</div>
         ${v.note ? `<div class="vsub">${esc(v.note)}</div>` : ''}</div></div>`;
-    if (v.reasons?.length) html += `<div class="rlabel">Why not</div><ul class="reasons">${v.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`;
-    if (v.maybes?.length) html += `<div class="rlabel">${v.status === 'no' ? 'Also check' : 'Check these'}</div><ul class="reasons">${v.maybes.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`;
+    if (v.reasons?.length) html += `<div class="rlabel">Why not</div>${list(v.reasons)}`;
+    if (v.maybes?.length) html += `<div class="rlabel">${v.status === 'no' ? 'Also worth checking' : 'Worth checking'}</div>${list(v.maybes)}`;
+    if (v.extra) html += `<div class="extra">ℹ️ ${esc(v.extra)}</div>`;
     return html + '</div>';
   }
 
-  function renderProduct(code, p){
-    lastProduct = { code, product: p };
-    const v = judge(p);
-    const active = Object.keys(LABELS).filter(k => checks[k]);
-    const name = p.product_name || p.generic_name || 'Unnamed product';
-    $('#result').innerHTML = `
-      <div class="product">
-        ${p.image_front_small_url ? `<img src="${esc(p.image_front_small_url)}" alt="">` : ''}
-        <div><div class="name">${esc(name)}</div>
-        <div class="meta">${esc(p.brands || '')}${p.brands ? ' · ' : ''}${esc(code)}</div></div>
-      </div>
-      ${active.map(k => verdictCard(k, v[k], active.length === 1)).join('')}
-      <button class="again" id="againBtn">📷 Scan another</button>`;
-    $('#againBtn').onclick = startScan;
-    return { name, v };
+  function verdictBlock(analysis, opts = {}){
+    const ks = active();
+    let html = ks.map(k => verdictCard(k, analysis[k], ks.length === 1)).join('');
+    if (analysis.text && analysis.text.trim()) {
+      const flagged = ks.some(k => ['no', 'maybe'].includes(analysis[k].status));
+      html += `<details class="ingr"${flagged ? ' open' : ''}><summary>Ingredients</summary>
+        <p>${LettuceRules.highlight(analysis, ks, esc)}</p></details>`;
+    }
+    if (opts.source) html += `<div class="source">${esc(opts.source)}</div>`;
+    return html;
   }
 
-  function showMessage(html){ lastProduct = null; $('#result').innerHTML = `<div class="msg">${html}</div>`; }
+  const productCard = (p, code) => {
+    const name = p.product_name || p.generic_name || 'Unnamed product';
+    return `<div class="product">
+      ${p.image_front_small_url ? `<img src="${esc(p.image_front_small_url)}" alt="" loading="lazy">` : ''}
+      <div><div class="name">${esc(name)}</div>
+      <div class="meta">${esc(p.brands || '')}${p.brands ? ' · ' : ''}${esc(code)}</div></div></div>`;
+  };
 
-  /* ---------- Lookup ---------- */
-  const FIELDS = 'product_name,generic_name,brands,image_front_small_url,ingredients_analysis_tags,ingredients,ingredients_text,allergens_tags,traces_tags,labels_tags';
+  function showMessage(html){ current = null; $('#result').innerHTML = `<div class="msg">${html}</div>`; }
+  function scrollToResult(){
+    const y = $('#result').getBoundingClientRect().top + window.scrollY - 12;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+
+  /* ================= Product lookup ================= */
+  const FIELDS = 'product_name,generic_name,brands,image_front_small_url,ingredients_analysis_tags,ingredients,ingredients_text,ingredients_text_en,allergens_tags,traces_tags,labels_tags';
   async function fetchProduct(code){
     const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=${FIELDS}`);
     if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
@@ -327,121 +331,366 @@
     code = String(code).replace(/\D/g, '');
     if (!code) return;
     showMessage('<div class="spinner"></div>Looking up ' + esc(code) + '…');
+    scrollToResult();
     try {
       let p = await fetchProduct(code);
       if (!p && code.length === 12) { p = await fetchProduct('0' + code); if (p) code = '0' + code; }
-      if (!p) {
-        showMessage(`<strong>Product not found</strong><br><span style="color:var(--muted)">Barcode ${esc(code)} isn't in Open Food Facts yet.</span><br><br>
-          <a href="https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${esc(code)}" target="_blank" rel="noopener">Add it to Open Food Facts</a>
-          <br><br><button class="again" onclick="document.getElementById('scanBtn').click()">📷 Scan another</button>`);
-        return;
-      }
-      const { name, v } = renderProduct(code, p);
-      addHistory(code, name, v);
-      window.scrollTo({ top: $('#result').offsetTop - 12, behavior: 'smooth' });
+      if (!p && code.length === 13 && code.startsWith('0')) { p = await fetchProduct(code.slice(1)); }
+      if (!p) { renderNotFound(code); return; }
+      current = { render(){ renderProduct(code, p); } };
+      const a = renderProduct(code, p);
+      addHistory(code, p.product_name || p.generic_name || 'Unnamed product', a);
     } catch (e) {
-      showMessage('<strong>Couldn\'t reach Open Food Facts</strong><br><span style="color:var(--muted)">Check your connection and try again.</span>');
+      showMessage('<strong>Couldn\'t reach Open Food Facts</strong><span class="sub">Check your signal and try again.</span>');
     }
   }
 
-  /* ---------- History ---------- */
-  function addHistory(code, name, v){
+  function renderProduct(code, p, ocrText){
+    pendingProduct = { code, product: p }; // so a label photo taken next is linked to this product
+    const a = LettuceRules.analyse(ocrText != null ? { text: ocrText, offProduct: p } : { offProduct: p });
+    const noText = !a.text.trim();
+    let html = productCard(p, code);
+    if (noText) {
+      html += `<div class="msg"><strong>No ingredients listed for this one yet</strong>
+        <span class="sub">Take a photo of the ingredients on the pack and I'll check them.</span>
+        <button class="scanbtn" style="margin-top:12px;font-size:17px;padding:16px" data-act="label">📝 Photo of ingredients</button></div>`;
+      // Labels alone can still answer (e.g. "vegan" logo)
+      const ks = active().filter(k => a[k].status !== 'unknown');
+      if (ks.length) html += ks.map(k => verdictCard(k, a[k], false)).join('');
+    } else {
+      html += verdictBlock(a, { source: ocrText != null ? 'Checked from your photo of the label' : 'Checked against the ingredients list on Open Food Facts' });
+    }
+    html += `<button class="secondary" data-act="scan">📷 Scan another</button>`;
+    $('#result').innerHTML = html;
+    return a;
+  }
+
+  function renderNotFound(code){
+    current = null;
+    $('#result').innerHTML = `<div class="msg"><strong>Not in the food database yet</strong>
+      <span class="sub">Barcode ${esc(code)}. Take a photo of the ingredients and I'll check them instead.</span>
+      <button class="scanbtn" style="margin-top:12px;font-size:17px;padding:16px" data-act="label">📝 Photo of ingredients</button>
+      <span class="sub" style="margin-top:12px">Wrong number? <a href="#" data-act="scan">Scan again</a> ·
+      <a href="https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${esc(code)}" target="_blank" rel="noopener">Add it to Open Food Facts</a></span></div>`;
+    pendingProduct = { code, product: null };
+  }
+
+  $('#result').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    e.preventDefault();
+    if (b.dataset.act === 'scan') startScan();
+    if (b.dataset.act === 'label') pickLabelPhoto(current?.ctx || pendingProduct);
+  });
+
+  /* ================= History ================= */
+  function addHistory(code, name, a){
     let h = store.get('vc_history', []).filter(x => x.code !== code);
-    h.unshift({ code, name, s: { vegan: v.vegan.status, vegetarian: v.vegetarian.status, gluten: v.gluten.status } });
-    store.set('vc_history', h.slice(0, 15)); paintHistory();
+    h.unshift({ code, name, s: { vegan: a.vegan.status, vegetarian: a.vegetarian.status, gluten: a.gluten.status } });
+    store.set('vc_history', h.slice(0, 20)); paintHistory();
   }
   function paintHistory(){
     const h = store.get('vc_history', []);
     $('#historyWrap').hidden = !h.length;
-    const primary = Object.keys(LABELS).find(k => checks[k]);
+    const ks = active();
+    const worst = s => ['no', 'maybe', 'unknown', 'yes'].find(x => ks.some(k => s[k] === x)) || 'unknown';
     $('#history').innerHTML = h.map(x => `<li data-code="${esc(x.code)}">
-      <span class="dot ${x.s[primary] || 'unknown'}"></span>
+      <span class="dot ${worst(x.s)}"></span>
       <span class="hname">${esc(x.name)}</span><span class="hcode">${esc(x.code)}</span></li>`).join('');
   }
   $('#history').addEventListener('click', e => { const li = e.target.closest('li'); if (li) lookup(li.dataset.code); });
   $('#clearHistory').onclick = () => { store.set('vc_history', []); paintHistory(); };
-  $('#chips').addEventListener('click', paintHistory);
   paintHistory();
 
-  /* ---------- Scanner ---------- */
-  const video = $('#video');
-  let stream = null, nativeLoop = false, zxReader = null, busy = false;
+  /* ================= Barcode detector ================= */
+  const FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e'];
+  let detectorP = null;
+  function getDetector(){
+    if (detectorP) return detectorP;
+    detectorP = (async () => {
+      // Android Chrome has a good built-in reader; everyone else (incl. iPhone) uses zxing-cpp
+      if ('BarcodeDetector' in window) {
+        try { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('ean_13')) return new BarcodeDetector({ formats: FORMATS }); } catch {}
+      }
+      await loadScript('lib/barcode-detector.js');
+      const api = window.BarcodeDetectionAPI;
+      await api.prepareZXingModule({
+        overrides: { locateFile: (path, prefix) => path.endsWith('.wasm') ? abs('lib/' + path) : prefix + path },
+        fireImmediately: true
+      });
+      return new api.BarcodeDetector({ formats: FORMATS });
+    })();
+    detectorP.catch(() => { detectorP = null; });
+    return detectorP;
+  }
+  // Warm it up so the first scan is quick
+  window.addEventListener('load', () => setTimeout(() => getDetector().catch(() => {}), 800));
 
-  function loadZXing(){
-    if (window.ZXing) return Promise.resolve();
-    return new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.src = 'zxing.min.js';
-      s.onload = res; s.onerror = () => rej(new Error('Scanner library failed to load'));
-      document.head.appendChild(s);
-    });
+  /* ================= Live scanner ================= */
+  const video = $('#video'), frame = $('#frame');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let stream = null, running = false, seen = new Map(), tipTimer = null, frameNo = 0;
+  let track = null, zoomLevels = null, zoomIdx = 0;
+
+  function cropToCanvas(full){
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (!vw || !vh) return false;
+    const vr = video.getBoundingClientRect();
+    const scale = Math.max(vr.width / vw, vr.height / vh);
+    const offX = (vw - vr.width / scale) / 2, offY = (vh - vr.height / scale) / 2;
+    let sx, sy, sw, sh;
+    if (full) { sx = offX; sy = offY; sw = vr.width / scale; sh = vr.height / scale; }
+    else {
+      const fr = frame.getBoundingClientRect();
+      const padX = fr.width * 0.12, padY = fr.height * 0.35;
+      sx = offX + (fr.left - vr.left - padX) / scale; sy = offY + (fr.top - vr.top - padY) / scale;
+      sw = (fr.width + padX * 2) / scale; sh = (fr.height + padY * 2) / scale;
+    }
+    sx = Math.max(0, sx); sy = Math.max(0, sy); sw = Math.min(vw - sx, sw); sh = Math.min(vh - sy, sh);
+    const k = Math.min(1, 1280 / sw);
+    canvas.width = Math.round(sw * k); canvas.height = Math.round(sh * k);
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    return true;
   }
 
-  async function nativeSupported(){
-    if (!('BarcodeDetector' in window)) return false;
-    try { const f = await BarcodeDetector.getSupportedFormats(); return f.includes('ean_13'); }
-    catch { return false; }
+  // A code is accepted once it's been read the same way twice (three times for short 8-digit codes)
+  function consider(codes){
+    for (const c of codes) {
+      const code = cleanCode(c.rawValue, c.format);
+      if (!code) continue;
+      const n = (seen.get(code) || 0) + 1;
+      seen.set(code, n);
+      if (n >= (code.length === 8 ? 3 : 2)) return code;
+    }
+    return null;
   }
 
-  function onCode(code){
-    if (busy || !validBarcode(code)) return;
-    busy = true;
-    stopScan();
-    lookup(code);
+  async function scanLoop(det){
+    while (running) {
+      const t0 = performance.now();
+      frameNo++;
+      try {
+        if (cropToCanvas(frameNo % 4 === 0)) {
+          const codes = await det.detect(canvas);
+          const hit = codes.length && consider(codes);
+          if (hit && running) { success(hit); return; }
+        }
+      } catch {}
+      const wait = Math.max(30, 110 - (performance.now() - t0));
+      await new Promise(r => setTimeout(r, wait));
+    }
   }
+
+  function success(code){
+    running = false;
+    frame.classList.add('hit');
+    try { navigator.vibrate?.(60); } catch {}
+    setTimeout(() => { stopScan(); lookup(code); }, 250);
+  }
+
+  async function applyZoom(){
+    if (!track || !zoomLevels) return;
+    const z = zoomLevels[zoomIdx];
+    try { await track.applyConstraints({ advanced: [{ zoom: z }] }); } catch {}
+    $('#zoomBtn').textContent = (Math.round(z * 10) / 10) + '×';
+    store.set('vc_zoom', zoomIdx);
+  }
+  $('#zoomBtn').onclick = () => { zoomIdx = (zoomIdx + 1) % zoomLevels.length; applyZoom(); };
 
   async function startScan(){
-    busy = false;
-    $('#scanHint').textContent = 'Line the barcode up inside the box';
+    seen = new Map(); frameNo = 0;
+    frame.classList.remove('hit');
+    $('#scanHint').innerHTML = 'Hold the phone a hand-span away<br>and fit the barcode in the box';
+    $('#zoomBtn').hidden = true;
     $('#scanner').classList.add('on');
     try {
-      if (await nativeSupported()) {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false });
-        video.srcObject = stream; await video.play();
-        const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-        nativeLoop = true;
-        const tick = async () => {
-          if (!nativeLoop) return;
-          try { const codes = await det.detect(video); if (codes.length) onCode(codes[0].rawValue); } catch {}
-          if (nativeLoop) setTimeout(tick, 120);
-        };
-        tick();
-      } else {
-        await loadZXing();
-        const hints = new Map();
-        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-          ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-          ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E ]);
-        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-        zxReader = new ZXing.BrowserMultiFormatReader(hints, 120);
-        await zxReader.decodeFromConstraints(
-          { video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false },
-          video, res => { if (res) onCode(res.getText()); });
+      const detP = getDetector();
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+      });
+      video.srcObject = stream;
+      await video.play().catch(() => {});
+      track = stream.getVideoTracks()[0];
+      const caps = track.getCapabilities ? track.getCapabilities() : {};
+      if (caps.focusMode && caps.focusMode.includes('continuous')) {
+        track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
       }
+      // Zooming in lets you hold the phone further away, where newer iPhones can focus
+      if (caps.zoom && caps.zoom.max >= 1.5) {
+        const max = Math.min(caps.zoom.max, 3);
+        zoomLevels = [1, Math.min(2, max)];
+        if (max >= 3) zoomLevels.push(3);
+        zoomIdx = Math.min(store.get('vc_zoom', 1), zoomLevels.length - 1);
+        $('#zoomBtn').hidden = false;
+        applyZoom();
+      } else zoomLevels = null;
+
+      const det = await detP;
+      running = true;
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => {
+        if (running) $('#scanHint').innerHTML = 'Struggling? Move back a little so it can focus,<br>tilt away from glare, or tap <b>📸 Photo</b>';
+      }, 7000);
+      scanLoop(det);
     } catch (e) {
       stopScan();
       const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
       showMessage(denied
-        ? '<strong>Camera access was blocked</strong><br><span style="color:var(--muted)">Allow camera access for this site in your browser settings, or type the barcode number above.</span>'
-        : '<strong>Couldn\'t start the camera</strong><br><span style="color:var(--muted)">' + esc(e.message || e) + '<br>You can type the barcode number above instead.</span>');
+        ? '<strong>Camera access was blocked</strong><span class="sub">Allow camera access for this app in Settings › Safari › Camera, or type the barcode number above.</span>'
+        : '<strong>Couldn\'t start the camera</strong><span class="sub">' + esc(e.message || e) + '<br>You can type the barcode number above instead.</span>');
     }
   }
 
   function stopScan(){
-    nativeLoop = false;
-    if (zxReader) { try { zxReader.reset(); } catch {} zxReader = null; }
+    running = false;
+    clearTimeout(tipTimer);
     if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-    if (video.srcObject) { try { video.srcObject.getTracks().forEach(t => t.stop()); } catch {} video.srcObject = null; }
+    track = null; video.srcObject = null;
     $('#scanner').classList.remove('on');
   }
 
   $('#scanBtn').onclick = startScan;
   $('#closeScan').onclick = stopScan;
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopScan(); });
+
+  /* ================= Barcode from a still photo ================= */
+  // Phone photos focus far better than the live video feed, so this rescues tricky barcodes
+  $('#photoBtn').onclick = () => { stopScan(); $('#barcodePhoto').value = ''; $('#barcodePhoto').click(); };
+  $('#barcodePhoto').addEventListener('change', async e => {
+    const file = e.target.files[0]; if (!file) return;
+    showMessage('<div class="spinner"></div>Reading the barcode…'); scrollToResult();
+    try {
+      const det = await getDetector();
+      const bmp = await createImageBitmap(file);
+      let code = null;
+      for (const maxSide of [1600, 2600, 1000]) {
+        for (const rot of [0, 90]) {
+          const k = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
+          const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+          canvas.width = rot ? h : w; canvas.height = rot ? w : h;
+          ctx.save();
+          if (rot) { ctx.translate(h, 0); ctx.rotate(Math.PI / 2); }
+          ctx.drawImage(bmp, 0, 0, w, h); ctx.restore();
+          const codes = await det.detect(canvas);
+          for (const c of codes) { code = cleanCode(c.rawValue, c.format); if (code) break; }
+          if (code) break;
+        }
+        if (code) break;
+      }
+      if (code) lookup(code);
+      else showMessage(`<strong>Couldn't find a barcode in that photo</strong>
+        <span class="sub">Try again with the barcode filling most of the picture and no glare, or type the number above.</span>`);
+    } catch (err) {
+      showMessage('<strong>Couldn\'t read that photo</strong><span class="sub">' + esc(err.message || err) + '</span>');
+    }
+  });
+
+  /* ================= Ingredients label (OCR) ================= */
+  let pendingProduct = null, ocrWorker = null, ocrProgress = null;
+  function pickLabelPhoto(ctx){
+    pendingProduct = ctx || null;
+    $('#labelPhoto').value = ''; $('#labelPhoto').click();
+  }
+  $('#labelBtn').onclick = () => pickLabelPhoto(null);
+
+  async function getOcr(){
+    if (ocrWorker) return ocrWorker;
+    await loadScript('lib/tesseract.min.js');
+    ocrWorker = await Tesseract.createWorker('eng', 1, {
+      workerPath: abs('lib/worker.min.js'),
+      corePath: abs('lib/tesseract-core'),
+      langPath: abs('lib/lang'),
+      workerBlobURL: false,
+      logger: m => { if (ocrProgress && typeof m.progress === 'number') ocrProgress(m.status, m.progress); }
+    });
+    return ocrWorker;
+  }
+
+  // Shrink, greyscale and stretch contrast: helps a lot with shiny packaging
+  async function prepImage(file){
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 2200 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    const g = c.getContext('2d', { willReadFrequently: true });
+    g.drawImage(bmp, 0, 0, c.width, c.height);
+    const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
+    const hist = new Uint32Array(256);
+    for (let i = 0; i < d.length; i += 4) { const y = (d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000 | 0; d[i] = y; hist[y]++; }
+    const total = d.length / 4; let lo = 0, hi = 255, acc = 0;
+    while (lo < 255 && (acc += hist[lo]) < total * 0.02) lo++;
+    acc = 0; while (hi > 0 && (acc += hist[hi]) < total * 0.02) hi--;
+    const span = Math.max(1, hi - lo);
+    for (let i = 0; i < d.length; i += 4) { const v = Math.max(0, Math.min(255, (d[i] - lo) * 255 / span)); d[i] = d[i + 1] = d[i + 2] = v; }
+    g.putImageData(img, 0, 0);
+    return c;
+  }
+
+  // Keep just the ingredients paragraph from everything the camera saw
+  function extractIngredients(text){
+    let t = text.replace(/-\n(?=[a-z])/g, '').replace(/\s*\n\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    const start = t.search(/\bingredients?\b\s*[:;.\-]?/i);
+    if (start >= 0) t = t.slice(start).replace(/^ingredients?\s*[:;.\-]?\s*/i, '');
+    const end = t.search(/\b(?:nutrition(?:al)?(?:\s+information)?|typical\s+values|storage|store\s+in|best\s+before|use\s+by|once\s+opened|energy\s+\d|serving\s+suggestion|packed\s+in\s+a\s+protective|recycl)/i);
+    if (end > 20) t = t.slice(0, end);
+    return t.trim();
+  }
+
+  $('#labelPhoto').addEventListener('change', async e => {
+    const file = e.target.files[0]; if (!file) return;
+    const ctxInfo = pendingProduct;
+    current = null;
+    $('#result').innerHTML = `<div class="msg"><strong>Reading the label…</strong>
+      <span class="sub" id="ocrStatus">Getting ready (first time takes a few seconds)</span>
+      <div class="bar"><i id="ocrBar"></i></div></div>`;
+    scrollToResult();
+    ocrProgress = (status, p) => {
+      const bar = $('#ocrBar'), st = $('#ocrStatus'); if (!bar) return;
+      const reading = /recogni/.test(status);
+      bar.style.width = Math.round((reading ? 0.3 + p * 0.7 : p * 0.3) * 100) + '%';
+      if (st) st.textContent = reading ? 'Reading text…' : 'Getting ready (first time takes a few seconds)';
+    };
+    try {
+      const [w, img] = await Promise.all([getOcr(), prepImage(file)]);
+      const { data } = await w.recognize(img);
+      const text = extractIngredients(data.text || '');
+      renderOcr(text, ctxInfo);
+    } catch (err) {
+      showMessage('<strong>Couldn\'t read that photo</strong><span class="sub">' + esc(err.message || err) + '</span>');
+    } finally { ocrProgress = null; }
+  });
+
+  function renderOcr(text, ctxInfo){
+    const p = ctxInfo?.product || null;
+    const draw = () => {
+      const t = $('#ocrText') ? $('#ocrText').value : text;
+      const a = LettuceRules.analyse({ text: t, offProduct: p || undefined });
+      $('#ocrResult').innerHTML = t.replace(/[^a-z]/gi, '').length < 3
+        ? `<div class="msg"><strong>Couldn't make out any ingredients</strong><span class="sub">Try again closer, flat-on and without glare, or type them in the box above.</span></div>`
+        : verdictBlock(a, { source: 'Checked from your photo of the label. Fix any misread words above and it updates.' });
+      return a;
+    };
+    $('#result').innerHTML = `
+      ${p ? productCard(p, ctxInfo.code) : ''}
+      <div class="ocrbox"><label for="ocrText">Ingredients from your photo</label>
+        <div class="sub">Photos aren't perfect. Correct anything that looks wrong.</div>
+        <textarea id="ocrText" spellcheck="false"></textarea></div>
+      <div id="ocrResult"></div>
+      <button class="secondary" data-act="label">📝 Take another photo</button>
+      <button class="secondary" data-act="scan">📷 Scan a barcode</button>`;
+    $('#ocrText').value = text;
+    current = { render: draw, ctx: ctxInfo };
+    const a = draw();
+    if (ctxInfo?.code) addHistory(ctxInfo.code, p?.product_name || 'Product ' + ctxInfo.code, a);
+    let tmr; $('#ocrText').addEventListener('input', () => { clearTimeout(tmr); tmr = setTimeout(draw, 350); });
+  }
+
+  /* ================= Manual entry ================= */
   $('#manualForm').addEventListener('submit', e => {
     e.preventDefault(); const c = $('#manualInput').value.trim();
     if (c) { $('#manualInput').blur(); lookup(c); }
   });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stopScan(); });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

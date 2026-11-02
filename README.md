@@ -19,14 +19,24 @@ Product data comes from [Open Food Facts](https://world.openfoodfacts.org), a fr
 3. Open it from the new icon. It runs full-screen like a normal app.
 4. The first scan asks for camera access; tap **Allow**.
 
+## How it works
+
+- **Barcode scanning** uses [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp) (via `barcode-detector`), which copes much better with blur and curved packets. A barcode is only accepted once it's been read the same way twice and its check digit is valid, so half-read numbers don't get through.
+- **📸 Photo**: if the live scan struggles, take a still photo instead. The phone's normal camera focuses much better than the live feed.
+- **Zoom button (1×/2×)** on phones that support it, so you can hold the phone further back where newer iPhones can focus.
+- **Ingredient checking** is done by `rules.js`: a UK-focused list of animal-derived and gluten ingredients, each flagged with a plain-English reason. It ignores things that only *sound* bad (coconut milk, cocoa butter, "bacon flavour", buckwheat, glucose syrup from wheat).
+- **📝 Photo of ingredients label**: for products missing from Open Food Facts, it reads the label on the phone itself with [Tesseract](https://github.com/naptha/tesseract.js) and checks that. You can correct any misread words.
+
 ## Files
 
 | File | What it does |
 |---|---|
-| `index.html` | The whole app |
+| `index.html` | The app |
+| `rules.js` | The vegan / vegetarian / gluten-free rules |
 | `manifest.webmanifest` | App name, icon and full-screen settings |
-| `sw.js` | Caches the app so it opens instantly |
-| `zxing.min.js` | Barcode scanner for iPhone (Safari has no built-in one) |
+| `sw.js` | Keeps the app on the phone so it opens instantly |
+| `lib/barcode-detector.js`, `lib/zxing_reader.wasm` | Barcode scanner |
+| `lib/tesseract*`, `lib/worker.min.js`, `lib/lang/` | Label reader (only downloads the first time you use it) |
 | `icons/` | Home-screen and app icons |
 
 ## Updating
@@ -37,4 +47,4 @@ After changing any file, bump `VERSION` in `sw.js` (e.g. `v1` → `v2`) so phone
 
 - Results are only as good as the Open Food Facts entry. Recipes change, so always check the pack, especially for allergies or coeliac disease.
 - Product not found? There's a link to add it to Open Food Facts.
-- The scanner library is [ZXing](https://github.com/zxing-js/library) (Apache 2.0).
+- Scanner: barcode-detector / zxing-wasm (MIT). Label reader: tesseract.js (Apache 2.0). Licences are in `lib/`.

@@ -1,17 +1,20 @@
-// Lettuce Check service worker: caches the app itself so it opens instantly.
+// Lettuce Check service worker: keeps the app on the phone so it opens instantly.
 // Product lookups always go to the network (Open Food Facts).
 // Bump VERSION whenever you change any file so phones pick up the update.
-const VERSION = 'lettuce-check-v1';
+const VERSION = 'lettuce-check-v2';
 const SHELL = [
   './',
   'index.html',
+  'rules.js',
   'manifest.webmanifest',
-  'zxing.min.js',
+  'lib/barcode-detector.js',
+  'lib/zxing_reader.wasm',
   'icons/logo.png',
   'icons/apple-touch-icon.png',
   'icons/icon-192.png',
   'icons/icon-512.png'
 ];
+// The label reader (lib/tesseract*, lib/lang) is big, so it's cached the first time it's used instead.
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -27,7 +30,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.origin !== location.origin) return; // let API calls go straight out
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return; // API calls go straight out
 
   // Pages: network first so updates show, fall back to cache when offline
   if (e.request.mode === 'navigate') {
@@ -38,6 +41,11 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  // Everything else: cache first
-  e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request)));
+  // Everything else: cache first, and remember anything new (e.g. the label reader)
+  e.respondWith(
+    caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {
+      if (r.ok) { const copy = r.clone(); caches.open(VERSION).then(c => c.put(e.request, copy)); }
+      return r;
+    }))
+  );
 });
