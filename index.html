@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lettuce Check">
+<meta name="application-name" content="Lettuce Check">
+<meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121512" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Scan a food barcode to check if it's vegan, vegetarian or gluten-free.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>Lettuce Check</title>
+<style>
+  :root{
+    --bg:#f6f7f4; --card:#ffffff; --ink:#1d221c; --muted:#6b7368; --line:#e3e6df;
+    --yes:#1f9d55; --yes-bg:#e6f6ec; --no:#d23b3b; --no-bg:#fdeaea;
+    --maybe:#c98a07; --maybe-bg:#fdf4dc; --unk:#7a817a; --unk-bg:#eef0ec;
+    --accent:#1f9d55; --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#121512; --card:#1c201c; --ink:#eef1ec; --muted:#9aa398; --line:#2c322c;
+      --yes:#3ccf7a; --yes-bg:#143322; --no:#ff6b6b; --no-bg:#3a1818;
+      --maybe:#f2b632; --maybe-bg:#3a2e10; --unk:#a5ada3; --unk-bg:#262b26;
+      --accent:#3ccf7a;
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{overscroll-behavior:none;margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  body{padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+  .wrap{max-width:520px;margin:0 auto}
+  button,.chip{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+  header{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+  header .logo{width:40px;height:40px;border-radius:11px;display:block}
+  header h1{font-size:22px;margin:0;letter-spacing:-.3px;line-height:1.1}
+  header .tag{font-size:13px;color:var(--muted);margin-top:1px}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+    padding:9px 14px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+  .scanbtn{width:100%;border:0;border-radius:var(--radius);background:var(--accent);color:#fff;
+    font-size:20px;font-weight:700;padding:22px;cursor:pointer;display:flex;gap:10px;
+    align-items:center;justify-content:center}
+  .scanbtn:active{transform:scale(.98)}
+
+  .manual{display:flex;gap:8px;margin-top:10px}
+  .manual input{flex:1;min-width:0;font-size:16px;padding:12px 14px;border-radius:12px;
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+  .manual button{border:0;border-radius:12px;padding:0 16px;font-weight:700;font-size:15px;
+    background:var(--card);color:var(--ink);border:1.5px solid var(--line);cursor:pointer}
+
+  /* Scanner */
+  #scanner{position:fixed;inset:0;background:#000;z-index:10;display:none}
+  #scanner.on{display:block}
+  #video{width:100%;height:100%;object-fit:cover}
+  .frame{position:absolute;left:50%;top:45%;width:78%;max-width:380px;aspect-ratio:1.8;
+    transform:translate(-50%,-50%);border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+  .frame::before,.frame::after{content:"";position:absolute;inset:0;border-radius:16px;
+    border:3px solid rgba(255,255,255,.9)}
+  .frame::after{border:0;height:2px;top:50%;background:#ff4d4d;inset:auto 8% auto 8%;
+    animation:sweep 1.6s ease-in-out infinite}
+  @keyframes sweep{0%,100%{top:20%}50%{top:80%}}
+  .scanhint{position:absolute;left:0;right:0;top:calc(45% + 130px);text-align:center;
+    color:#fff;font-size:15px;opacity:.9;padding:0 20px}
+  .close{position:absolute;left:50%;transform:translateX(-50%);
+    bottom:max(28px,env(safe-area-inset-bottom));border:0;border-radius:999px;
+    background:rgba(255,255,255,.95);color:#111;font-weight:700;font-size:16px;padding:14px 28px}
+
+  /* Results */
+  #result{margin-top:18px}
+  .product{display:flex;gap:12px;align-items:center;background:var(--card);
+    border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:12px}
+  .product img{width:56px;height:56px;object-fit:contain;border-radius:10px;background:#fff}
+  .product .name{font-weight:700;font-size:16px;line-height:1.25}
+  .product .meta{color:var(--muted);font-size:13px;margin-top:2px}
+
+  .verdict{border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;border:2px solid}
+  .verdict.yes{background:var(--yes-bg);border-color:var(--yes)}
+  .verdict.no{background:var(--no-bg);border-color:var(--no)}
+  .verdict.maybe{background:var(--maybe-bg);border-color:var(--maybe)}
+  .verdict.unknown{background:var(--unk-bg);border-color:var(--unk)}
+  .vhead{display:flex;align-items:center;gap:12px}
+  .icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-size:24px;font-weight:800;flex:none}
+  .yes .icon{background:var(--yes)} .no .icon{background:var(--no)}
+  .maybe .icon{background:var(--maybe)} .unknown .icon{background:var(--unk)}
+  .vtitle{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .vsub{font-size:14px;color:var(--muted);margin-top:1px}
+  .big .icon{width:64px;height:64px;font-size:34px}
+  .big .vtitle{font-size:30px}
+  .reasons{margin:12px 0 0;padding-left:20px;font-size:15px;line-height:1.5}
+  .reasons li::marker{color:var(--muted)}
+  .rlabel{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+    color:var(--muted);margin-top:12px}
+
+  .msg{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;text-align:center;font-size:16px}
+  .msg a{color:var(--accent)}
+  .spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .again{width:100%;margin-top:6px;border:1.5px solid var(--line);background:var(--card);
+    color:var(--ink);border-radius:14px;padding:14px;font-size:16px;font-weight:700}
+
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:26px 0 8px}
+  .history{list-style:none;margin:0;padding:0}
+  .history li{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.yes{background:var(--yes)} .dot.no{background:var(--no)}
+  .dot.maybe{background:var(--maybe)} .dot.unknown{background:var(--unk)}
+  .history .hname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history .hcode{color:var(--muted);font-size:12px}
+  .clear{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;padding:8px 0}
+  footer{color:var(--muted);font-size:12px;line-height:1.5;margin-top:24px;text-align:center}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img class="logo" src="icons/logo.png" alt="">
+    <div><h1>Lettuce Check</h1><div class="tag">Scan it. Let us check.</div></div>
+  </header>
+
+  <div class="chips" id="chips">
+    <button class="chip" data-check="vegan" aria-pressed="true">Vegan</button>
+    <button class="chip" data-check="vegetarian" aria-pressed="false">Vegetarian</button>
+    <button class="chip" data-check="gluten" aria-pressed="false">Gluten-free</button>
+  </div>
+
+  <button class="scanbtn" id="scanBtn">📷 Scan barcode</button>
+
+  <form class="manual" id="manualForm">
+    <input id="manualInput" inputmode="numeric" pattern="[0-9]*" placeholder="Or type the barcode number" autocomplete="off">
+    <button type="submit">Check</button>
+  </form>
+
+  <div id="result"></div>
+
+  <div id="historyWrap" hidden>
+    <h2>Recent</h2>
+    <ul class="history" id="history"></ul>
+    <button class="clear" id="clearHistory">Clear recent</button>
+  </div>
+
+  <footer>
+    Product data from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>,
+    a free crowd-sourced database. Recipes change and entries can be wrong or incomplete,
+    so always check the pack, especially for allergies or coeliac disease.
+  </footer>
+</div>
+
+<div id="scanner">
+  <video id="video" playsinline muted autoplay></video>
+  <div class="frame"></div>
+  <div class="scanhint" id="scanHint">Line the barcode up inside the box</div>
+  <button class="close" id="closeScan">Cancel</button>
+</div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const LABELS = { vegan: 'Vegan', vegetarian: 'Vegetarian', gluten: 'Gluten-free' };
+  const store = {
+    get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+
+  /* ---------- Toggles ---------- */
+  let checks = store.get('vc_checks', { vegan: true, vegetarian: false, gluten: false });
+  let lastProduct = null;
+  function paintChips(){
+    document.querySelectorAll('.chip').forEach(c =>
+      c.setAttribute('aria-pressed', checks[c.dataset.check] ? 'true' : 'false'));
+  }
+  $('#chips').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    const k = c.dataset.check;
+    checks[k] = !checks[k];
+    if (!Object.values(checks).some(Boolean)) checks[k] = true; // keep at least one on
+    store.set('vc_checks', checks); paintChips();
+    if (lastProduct) renderProduct(lastProduct.code, lastProduct.product);
+  });
+  paintChips();
+
+  /* ---------- Helpers ---------- */
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const tagName = t => t.replace(/^[a-z]{2}:/, '').replace(/-/g, ' ');
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const uniq = arr => [...new Map(arr.map(x => [x.toLowerCase(), x])).values()];
+
+  function validBarcode(c){
+    if (!/^\d{8}$|^\d{12,14}$/.test(c)) return false;
+    if (c.length === 8) return true; // EAN-8 / UPC-E use different maths, let them through
+    const d = c.split('').map(Number); const check = d.pop();
+    let s = 0; d.reverse().forEach((n, i) => s += n * (i % 2 === 0 ? 3 : 1));
+    return (10 - s % 10) % 10 === check;
+  }
+
+  function flatIngredients(list, out = []){
+    for (const i of list || []) { out.push(i); if (i.ingredients) flatIngredients(i.ingredients, out); }
+    return out;
+  }
+  const ingName = i => cap((i.text || tagName(i.id || '')).trim());
+
+  /* ---------- Verdict logic ---------- */
+  function judge(p){
+    const tags = p.ingredients_analysis_tags || [];
+    const labels = p.labels_tags || [];
+    const allergens = p.allergens_tags || [];
+    const traces = p.traces_tags || [];
+    const ings = flatIngredients(p.ingredients);
+    const hasIngredients = ings.length > 0 || !!p.ingredients_text;
+    const out = {};
+
+    // Vegan
+    {
+      const animalAllergens = { 'en:milk':'Milk', 'en:eggs':'Eggs', 'en:fish':'Fish',
+        'en:crustaceans':'Crustaceans', 'en:molluscs':'Molluscs' };
+      const no = uniq([
+        ...ings.filter(i => i.vegan === 'no').map(ingName),
+        ...allergens.filter(a => animalAllergens[a]).map(a => `${animalAllergens[a]} (allergen)`)
+      ]);
+      const maybe = uniq(ings.filter(i => i.vegan === 'maybe').map(ingName));
+      if (labels.includes('en:vegan')) out.vegan = { status:'yes', note:'Labelled vegan' };
+      else if (no.length) out.vegan = { status:'no', reasons:no, maybes:maybe };
+      else if (tags.includes('en:non-vegan')) out.vegan = { status:'no', reasons:['Flagged as non-vegan by Open Food Facts'], maybes:maybe };
+      else if (tags.includes('en:vegan')) out.vegan = { status:'yes', note:'No animal ingredients found' };
+      else if (maybe.length || tags.includes('en:maybe-vegan')) out.vegan = { status:'maybe', maybes:maybe, note:'Some ingredients can come from animals' };
+      else out.vegan = { status:'unknown', note: hasIngredients ? 'Ingredients not fully analysed yet' : 'No ingredients listed for this product' };
+      if (traces.some(t => animalAllergens[t]) && out.vegan.status === 'yes')
+        out.vegan.note += ' · may contain traces of ' + traces.filter(t => animalAllergens[t]).map(t => animalAllergens[t].toLowerCase()).join(', ');
+    }
+
+    // Vegetarian
+    {
+      const fishy = { 'en:fish':'Fish', 'en:crustaceans':'Crustaceans', 'en:molluscs':'Molluscs' };
+      const no = uniq([
+        ...ings.filter(i => i.vegetarian === 'no').map(ingName),
+        ...allergens.filter(a => fishy[a]).map(a => `${fishy[a]} (allergen)`)
+      ]);
+      const maybe = uniq(ings.filter(i => i.vegetarian === 'maybe').map(ingName));
+      if (labels.includes('en:vegetarian') || labels.includes('en:vegan')) out.vegetarian = { status:'yes', note:'Labelled vegetarian' };
+      else if (no.length) out.vegetarian = { status:'no', reasons:no, maybes:maybe };
+      else if (tags.includes('en:non-vegetarian')) out.vegetarian = { status:'no', reasons:['Flagged as non-vegetarian by Open Food Facts'], maybes:maybe };
+      else if (tags.includes('en:vegetarian')) out.vegetarian = { status:'yes', note:'No meat or fish ingredients found' };
+      else if (maybe.length || tags.includes('en:maybe-vegetarian')) out.vegetarian = { status:'maybe', maybes:maybe, note:'Some ingredients may not be vegetarian (e.g. rennet, gelatine)' };
+      else out.vegetarian = { status:'unknown', note: hasIngredients ? 'Ingredients not fully analysed yet' : 'No ingredients listed for this product' };
+    }
+
+    // Gluten-free
+    {
+      const glutenWords = /wheat|barley|\brye\b|\boats?\b|spelt|gluten|malt|semolina|couscous|bulgur|kamut|triticale|durum/i;
+      if (labels.includes('en:gluten-free') || labels.includes('en:no-gluten'))
+        out.gluten = { status:'yes', note:'Labelled gluten-free' };
+      else if (allergens.includes('en:gluten')) {
+        const r = uniq(ings.filter(i => glutenWords.test(i.text || i.id || '')).map(ingName));
+        out.gluten = { status:'no', reasons: r.length ? r : ['Contains gluten (listed allergen)'] };
+      }
+      else if (traces.includes('en:gluten'))
+        out.gluten = { status:'maybe', maybes:['May contain gluten (traces / shared factory)'] };
+      else if (hasIngredients)
+        out.gluten = { status:'yes', note:'No gluten in the listed ingredients or allergens' };
+      else out.gluten = { status:'unknown', note:'No ingredients listed for this product' };
+    }
+    return out;
+  }
+
+  /* ---------- Rendering ---------- */
+  const STATUS = {
+    yes:     { icon:'✓', word:'Yes' },
+    no:      { icon:'✕', word:'No' },
+    maybe:   { icon:'?', word:'Maybe' },
+    unknown: { icon:'–', word:'Not sure' }
+  };
+
+  function verdictCard(key, v, big){
+    const s = STATUS[v.status];
+    let html = `<div class="verdict ${v.status} ${big ? 'big' : ''}">
+      <div class="vhead"><div class="icon">${s.icon}</div>
+        <div><div class="vtitle">${LABELS[key]}: ${s.word}</div>
+        ${v.note ? `<div class="vsub">${esc(v.note)}</div>` : ''}</div></div>`;
+    if (v.reasons?.length) html += `<div class="rlabel">Why not</div><ul class="reasons">${v.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`;
+    if (v.maybes?.length) html += `<div class="rlabel">${v.status === 'no' ? 'Also check' : 'Check these'}</div><ul class="reasons">${v.maybes.map(r => `<li>${esc(r)}</li>`).join('')}</ul>`;
+    return html + '</div>';
+  }
+
+  function renderProduct(code, p){
+    lastProduct = { code, product: p };
+    const v = judge(p);
+    const active = Object.keys(LABELS).filter(k => checks[k]);
+    const name = p.product_name || p.generic_name || 'Unnamed product';
+    $('#result').innerHTML = `
+      <div class="product">
+        ${p.image_front_small_url ? `<img src="${esc(p.image_front_small_url)}" alt="">` : ''}
+        <div><div class="name">${esc(name)}</div>
+        <div class="meta">${esc(p.brands || '')}${p.brands ? ' · ' : ''}${esc(code)}</div></div>
+      </div>
+      ${active.map(k => verdictCard(k, v[k], active.length === 1)).join('')}
+      <button class="again" id="againBtn">📷 Scan another</button>`;
+    $('#againBtn').onclick = startScan;
+    return { name, v };
+  }
+
+  function showMessage(html){ lastProduct = null; $('#result').innerHTML = `<div class="msg">${html}</div>`; }
+
+  /* ---------- Lookup ---------- */
+  const FIELDS = 'product_name,generic_name,brands,image_front_small_url,ingredients_analysis_tags,ingredients,ingredients_text,allergens_tags,traces_tags,labels_tags';
+  async function fetchProduct(code){
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=${FIELDS}`);
+    if (!r.ok && r.status !== 404) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    return j.status === 1 ? j.product : null;
+  }
+
+  async function lookup(code){
+    code = String(code).replace(/\D/g, '');
+    if (!code) return;
+    showMessage('<div class="spinner"></div>Looking up ' + esc(code) + '…');
+    try {
+      let p = await fetchProduct(code);
+      if (!p && code.length === 12) { p = await fetchProduct('0' + code); if (p) code = '0' + code; }
+      if (!p) {
+        showMessage(`<strong>Product not found</strong><br><span style="color:var(--muted)">Barcode ${esc(code)} isn't in Open Food Facts yet.</span><br><br>
+          <a href="https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${esc(code)}" target="_blank" rel="noopener">Add it to Open Food Facts</a>
+          <br><br><button class="again" onclick="document.getElementById('scanBtn').click()">📷 Scan another</button>`);
+        return;
+      }
+      const { name, v } = renderProduct(code, p);
+      addHistory(code, name, v);
+      window.scrollTo({ top: $('#result').offsetTop - 12, behavior: 'smooth' });
+    } catch (e) {
+      showMessage('<strong>Couldn\'t reach Open Food Facts</strong><br><span style="color:var(--muted)">Check your connection and try again.</span>');
+    }
+  }
+
+  /* ---------- History ---------- */
+  function addHistory(code, name, v){
+    let h = store.get('vc_history', []).filter(x => x.code !== code);
+    h.unshift({ code, name, s: { vegan: v.vegan.status, vegetarian: v.vegetarian.status, gluten: v.gluten.status } });
+    store.set('vc_history', h.slice(0, 15)); paintHistory();
+  }
+  function paintHistory(){
+    const h = store.get('vc_history', []);
+    $('#historyWrap').hidden = !h.length;
+    const primary = Object.keys(LABELS).find(k => checks[k]);
+    $('#history').innerHTML = h.map(x => `<li data-code="${esc(x.code)}">
+      <span class="dot ${x.s[primary] || 'unknown'}"></span>
+      <span class="hname">${esc(x.name)}</span><span class="hcode">${esc(x.code)}</span></li>`).join('');
+  }
+  $('#history').addEventListener('click', e => { const li = e.target.closest('li'); if (li) lookup(li.dataset.code); });
+  $('#clearHistory').onclick = () => { store.set('vc_history', []); paintHistory(); };
+  $('#chips').addEventListener('click', paintHistory);
+  paintHistory();
+
+  /* ---------- Scanner ---------- */
+  const video = $('#video');
+  let stream = null, nativeLoop = false, zxReader = null, busy = false;
+
+  function loadZXing(){
+    if (window.ZXing) return Promise.resolve();
+    return new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'zxing.min.js';
+      s.onload = res; s.onerror = () => rej(new Error('Scanner library failed to load'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function nativeSupported(){
+    if (!('BarcodeDetector' in window)) return false;
+    try { const f = await BarcodeDetector.getSupportedFormats(); return f.includes('ean_13'); }
+    catch { return false; }
+  }
+
+  function onCode(code){
+    if (busy || !validBarcode(code)) return;
+    busy = true;
+    stopScan();
+    lookup(code);
+  }
+
+  async function startScan(){
+    busy = false;
+    $('#scanHint').textContent = 'Line the barcode up inside the box';
+    $('#scanner').classList.add('on');
+    try {
+      if (await nativeSupported()) {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false });
+        video.srcObject = stream; await video.play();
+        const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+        nativeLoop = true;
+        const tick = async () => {
+          if (!nativeLoop) return;
+          try { const codes = await det.detect(video); if (codes.length) onCode(codes[0].rawValue); } catch {}
+          if (nativeLoop) setTimeout(tick, 120);
+        };
+        tick();
+      } else {
+        await loadZXing();
+        const hints = new Map();
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+          ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+          ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E ]);
+        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+        zxReader = new ZXing.BrowserMultiFormatReader(hints, 120);
+        await zxReader.decodeFromConstraints(
+          { video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false },
+          video, res => { if (res) onCode(res.getText()); });
+      }
+    } catch (e) {
+      stopScan();
+      const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+      showMessage(denied
+        ? '<strong>Camera access was blocked</strong><br><span style="color:var(--muted)">Allow camera access for this site in your browser settings, or type the barcode number above.</span>'
+        : '<strong>Couldn\'t start the camera</strong><br><span style="color:var(--muted)">' + esc(e.message || e) + '<br>You can type the barcode number above instead.</span>');
+    }
+  }
+
+  function stopScan(){
+    nativeLoop = false;
+    if (zxReader) { try { zxReader.reset(); } catch {} zxReader = null; }
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (video.srcObject) { try { video.srcObject.getTracks().forEach(t => t.stop()); } catch {} video.srcObject = null; }
+    $('#scanner').classList.remove('on');
+  }
+
+  $('#scanBtn').onclick = startScan;
+  $('#closeScan').onclick = stopScan;
+  $('#manualForm').addEventListener('submit', e => {
+    e.preventDefault(); const c = $('#manualInput').value.trim();
+    if (c) { $('#manualInput').blur(); lookup(c); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopScan(); });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+})();
+</script>
+</body>
+</html>
